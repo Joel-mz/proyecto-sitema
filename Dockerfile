@@ -32,15 +32,10 @@ COPY . .
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Setup entrypoint script
+RUN chmod +x /var/www/html/docker-entrypoint.sh
 
 # Expose default port
 EXPOSE 80
 
-# Run migrations and start Apache
-CMD touch /var/www/html/database/database.sqlite && \
-    php artisan storage:link || true && \
-    php artisan migrate --force && \
-    php artisan db:seed --class=AdminUserSeeder --force && \
-    apache2-foreground
+CMD ["/var/www/html/docker-entrypoint.sh"]
