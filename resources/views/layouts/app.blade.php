@@ -32,16 +32,11 @@
                     },
                     animation: {
                         'bounce-subtle': 'bounceSubtle 2s infinite ease-in-out',
-                        'pulse-glow': 'pulseGlow 2s infinite',
                     },
                     keyframes: {
                         bounceSubtle: {
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-4px)' },
-                        },
-                        pulseGlow: {
-                            '0%, 100%': { opacity: '1', transform: 'scale(1)' },
-                            '50%': { opacity: '0.8', transform: 'scale(1.05)' },
                         }
                     }
                 }
@@ -52,7 +47,6 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
     </style>
 </head>
 <body class="min-h-full flex flex-col antialiased text-slate-800 bg-slate-50 selection:bg-blue-600 selection:text-white pb-20 sm:pb-0 relative">
@@ -220,7 +214,7 @@
     </div>
 
     <!-- ========================================================================= -->
-    <!-- SLIDE-OVER CART DRAWER & CHECKOUT MODAL (INTERACTIVE & BEAUTIFUL) -->
+    <!-- SLIDE-OVER CART DRAWER & CHECKOUT MODAL (SMART ORDER VS QUOTE) -->
     <!-- ========================================================================= -->
     <div id="cart-backdrop" onclick="closeCart()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 hidden transition-opacity"></div>
 
@@ -273,20 +267,30 @@
                 <!-- 1. INTENCIÓN: ¿Comprar Ahora o Solicitar Cotización? -->
                 <div>
                     <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
-                        ¿Qué deseas realizar? <span class="text-rose-500">*</span>
+                        Selecciona el tipo de solicitud <span class="text-rose-500">*</span>
                     </label>
                     <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
-                        <button type="button" id="action-btn-order" onclick="setOrderAction('order')" class="py-2 px-3 rounded-lg text-xs font-extrabold transition bg-white text-emerald-700 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
-                            <span>🛍️ Pedido / Comprar</span>
+                        <button type="button" id="action-btn-order" onclick="setOrderAction('order')" class="py-2.5 px-3 rounded-lg text-xs font-black transition bg-white text-emerald-700 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                            <span>🛍️ Pedido / Compra</span>
                         </button>
-                        <button type="button" id="action-btn-quote" onclick="setOrderAction('quote')" class="py-2 px-3 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 cursor-pointer">
+                        <button type="button" id="action-btn-quote" onclick="setOrderAction('quote')" class="py-2.5 px-3 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 cursor-pointer">
                             <span>📄 Solo Cotización</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- 2. TIPO DE ENTREGA / ENVÍO -->
-                <div>
+                <!-- Info message when in Quotation Mode -->
+                <div id="quote-info-box" class="hidden p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-xs">
+                    <div class="flex items-center gap-2 font-bold mb-1">
+                        <span>ℹ️ Modo Cotización Activado</span>
+                    </div>
+                    <p class="text-[11px] text-blue-700 leading-relaxed">
+                        En modo cotización <strong>no se requiere método de pago ni modalidad de entrega</strong>. Recibirás la proforma formal de precios y disponibilidad por WhatsApp.
+                    </p>
+                </div>
+
+                <!-- 2. TIPO DE ENTREGA / ENVÍO (Visible SOLO en modo Compra / Pedido) -->
+                <div id="delivery-mode-container">
                     <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
                         Modalidad de Entrega <span class="text-rose-500">*</span>
                     </label>
@@ -333,14 +337,14 @@
                 <div class="space-y-3 pt-2 border-t border-slate-100">
                     <div class="flex items-center justify-between">
                         <label class="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
-                            Tipo de Comprobante / Cliente
+                            Datos del Solicitante / Cliente
                         </label>
                         <div class="flex gap-1 bg-slate-100 p-0.5 rounded-lg text-[11px]">
                             <button type="button" id="type-btn-personal" onclick="setCustomerType('personal')" class="px-2.5 py-1 rounded-md font-bold transition bg-white text-blue-700 shadow-xs cursor-pointer">
-                                Boleta (DNI)
+                                Persona (DNI)
                             </button>
                             <button type="button" id="type-btn-business" onclick="setCustomerType('business')" class="px-2.5 py-1 rounded-md font-bold transition text-slate-500 hover:text-slate-800 cursor-pointer">
-                                Factura (RUC)
+                                Empresa (RUC)
                             </button>
                         </div>
                     </div>
@@ -368,14 +372,14 @@
                         </div>
 
                         <div class="sm:col-span-2">
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Dirección / Referencia de Entrega</label>
+                            <label id="order-address-label" class="block text-[11px] font-bold text-slate-600 mb-1">Dirección / Referencia de Entrega</label>
                             <input type="text" id="order-address" placeholder="Ej. Jr. Alonso de Alvarado 450, Moyobamba" class="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
                         </div>
                     </div>
                 </div>
 
-                <!-- 4. MÉTODO DE PAGO PREFERIDO -->
-                <div class="space-y-2 pt-2 border-t border-slate-100">
+                <!-- 4. MÉTODO DE PAGO PREFERIDO (Visible SOLO en modo Compra / Pedido) -->
+                <div id="payment-method-container" class="space-y-2 pt-2 border-t border-slate-100">
                     <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
                         Método de Pago Preferido <span class="text-rose-500">*</span>
                     </label>
@@ -409,7 +413,7 @@
                 <!-- 5. NOTAS ADICIONALES -->
                 <div>
                     <label class="block text-[11px] font-bold text-slate-600 mb-1">Notas o Consulta adicional (Opcional)</label>
-                    <textarea id="order-notes" rows="2" placeholder="Ej. Por favor confirmar si tienen stock en color negro." class="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"></textarea>
+                    <textarea id="order-notes" rows="2" placeholder="Ej. ¿Tienen descuento por volumen o alguna especificación?" class="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"></textarea>
                 </div>
             </div>
         </div>
@@ -417,7 +421,7 @@
         <!-- Drawer Footer: Totals and WhatsApp Action -->
         <div id="cart-drawer-footer" class="hidden p-4 sm:p-5 border-t border-slate-200 bg-slate-50 space-y-2.5">
             <div class="flex items-center justify-between text-slate-600 text-xs">
-                <span>Subtotal productos:</span>
+                <span id="cart-subtotal-label">Subtotal productos:</span>
                 <span id="cart-subtotal" class="font-bold text-slate-800">S/ 0.00</span>
             </div>
             <div class="flex items-center justify-between text-slate-900 font-extrabold text-base sm:text-lg pt-1 border-t border-slate-200/80">
@@ -426,11 +430,11 @@
             </div>
 
             <!-- WhatsApp Checkout Button -->
-            <button type="button" id="cart-submit-btn" onclick="submitWhatsAppOrder()" class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl font-extrabold text-sm shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2 cursor-pointer">
+            <button type="button" id="cart-submit-btn" onclick="submitWhatsAppOrder()" class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl font-black text-sm shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2 cursor-pointer">
                 <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.766-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
                 </svg>
-                <span id="btn-submit-text">Enviar Pedido por WhatsApp</span>
+                <span id="btn-submit-text">Enviar Pedido de Compra por WhatsApp</span>
             </button>
 
             <div class="flex items-center justify-center gap-4 pt-1">
@@ -553,19 +557,51 @@
             orderAction = action;
             const btnOrder = document.getElementById('action-btn-order');
             const btnQuote = document.getElementById('action-btn-quote');
+            const btnSubmit = document.getElementById('cart-submit-btn');
             const btnSubmitText = document.getElementById('btn-submit-text');
             const totalLabel = document.getElementById('cart-total-label');
+            const subtotalLabel = document.getElementById('cart-subtotal-label');
+            const deliveryContainer = document.getElementById('delivery-mode-container');
+            const paymentContainer = document.getElementById('payment-method-container');
+            const quoteInfoBox = document.getElementById('quote-info-box');
+            const addressLabel = document.getElementById('order-address-label');
+            const addressInput = document.getElementById('order-address');
 
             if (action === 'order') {
-                btnOrder.className = 'py-2 px-3 rounded-lg text-xs font-extrabold transition bg-white text-emerald-700 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer';
-                btnQuote.className = 'py-2 px-3 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 cursor-pointer';
-                btnSubmitText.textContent = 'Enviar Pedido de Compra por WhatsApp';
+                // Compra / Pedido Mode
+                btnOrder.className = 'py-2.5 px-3 rounded-lg text-xs font-black transition bg-white text-emerald-700 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer';
+                btnQuote.className = 'py-2.5 px-3 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 cursor-pointer';
+                
+                deliveryContainer.classList.remove('hidden');
+                paymentContainer.classList.remove('hidden');
+                quoteInfoBox.classList.add('hidden');
+
+                addressLabel.textContent = 'Dirección / Referencia de Entrega';
+                addressInput.placeholder = 'Ej. Jr. Alonso de Alvarado 450, Moyobamba';
+
                 totalLabel.textContent = 'Total a Pagar:';
+                subtotalLabel.textContent = 'Subtotal productos:';
+
+                btnSubmit.className = 'w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl font-black text-sm shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2 cursor-pointer';
+                btnSubmitText.textContent = 'Enviar Pedido de Compra por WhatsApp';
             } else {
-                btnQuote.className = 'py-2 px-3 rounded-lg text-xs font-extrabold transition bg-white text-blue-700 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer';
-                btnOrder.className = 'py-2 px-3 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 cursor-pointer';
+                // Cotización Mode
+                btnQuote.className = 'py-2.5 px-3 rounded-lg text-xs font-black transition bg-white text-blue-700 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer';
+                btnOrder.className = 'py-2.5 px-3 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 cursor-pointer';
+                
+                // HIDE delivery and payment method
+                deliveryContainer.classList.add('hidden');
+                paymentContainer.classList.add('hidden');
+                quoteInfoBox.classList.remove('hidden');
+
+                addressLabel.textContent = 'Ciudad / Ubicación de referencia (Opcional)';
+                addressInput.placeholder = 'Ej. Moyobamba, Tarapoto, Rioja, etc.';
+
+                totalLabel.textContent = 'Total Estimado / Proforma:';
+                subtotalLabel.textContent = 'Subtotal estimado:';
+
+                btnSubmit.className = 'w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white rounded-xl font-black text-sm shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 cursor-pointer';
                 btnSubmitText.textContent = 'Solicitar Cotización por WhatsApp';
-                totalLabel.textContent = 'Total Estimado:';
             }
         }
 
@@ -781,51 +817,77 @@
                 return;
             }
 
-            const deliveryMode = document.querySelector('input[name="delivery_mode"]:checked')?.value || 'Recojo en Tienda Moyobamba 🏪';
-            const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value || 'Yape 📱';
             const address = document.getElementById('order-address').value.trim();
             const notes = document.getElementById('order-notes').value.trim();
             const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const docType = customerType === 'personal' ? 'DNI (Boleta)' : 'RUC (Factura)';
+            const docType = customerType === 'personal' ? 'DNI' : 'RUC';
 
-            // Construct formatted WhatsApp message
-            const titleHeader = orderAction === 'order' 
-                ? `🛒 *NUEVO PEDIDO DE COMPRA - ${COMPANY_NAME}*`
-                : `📄 *SOLICITUD DE COTIZACIÓN - ${COMPANY_NAME}*`;
+            let msg = '';
 
-            let msg = `${titleHeader}\n`;
-            msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-            msg += `👤 *Cliente:* ${name}\n`;
-            msg += `📄 *${docType}:* ${doc}\n`;
-            msg += `📱 *Teléfono:* ${phone}\n`;
-            msg += `📍 *Modalidad de Entrega:* ${deliveryMode}\n`;
-            if (address) msg += `🏠 *Dirección/Referencia:* ${address}\n`;
-            msg += `💳 *Método de Pago Preferido:* ${selectedPayment}\n`;
-            if (notes) msg += `📝 *Nota:* ${notes}\n`;
-            msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-            msg += `📦 *PRODUCTOS:* \n\n`;
+            if (orderAction === 'quote') {
+                // STRICT QUOTATION FORMAT (NO DELIVERY, NO PAYMENT METHOD)
+                msg += `📄 *SOLICITUD DE COTIZACIÓN - ${COMPANY_NAME}*\n`;
+                msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+                msg += `👤 *Solicitante:* ${name}\n`;
+                msg += `📄 *${docType}:* ${doc}\n`;
+                msg += `📱 *Teléfono:* ${phone}\n`;
+                if (address) msg += `📍 *Ciudad/Ubicación:* ${address}\n`;
+                if (notes) msg += `📝 *Consulta:* ${notes}\n`;
+                msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+                msg += `📦 *PRODUCTOS A COTIZAR:*\n\n`;
 
-            cart.forEach((item, index) => {
-                const subtotal = item.price * item.quantity;
-                msg += `${index + 1}. *${item.name}*\n`;
-                msg += `   ▪ Cantidad: ${item.quantity} und.\n`;
-                msg += `   ▪ P. Unitario: S/ ${item.price.toFixed(2)}\n`;
-                msg += `   ▪ Subtotal: S/ ${subtotal.toFixed(2)}\n`;
-                if (item.image) {
-                    msg += `   ▪ 🖼️ Foto: ${item.image}\n`;
-                } else if (item.url) {
-                    msg += `   ▪ 🔗 Enlace: ${item.url}\n`;
-                }
-                msg += `\n`;
-            });
+                cart.forEach((item, index) => {
+                    const subtotal = item.price * item.quantity;
+                    msg += `${index + 1}. *${item.name}*\n`;
+                    msg += `   ▪ Cantidad: ${item.quantity} und.\n`;
+                    msg += `   ▪ Precio Ref.: S/ ${item.price.toFixed(2)}\n`;
+                    msg += `   ▪ Subtotal: S/ ${subtotal.toFixed(2)}\n`;
+                    if (item.image) {
+                        msg += `   ▪ 🖼️ Foto: ${item.image}\n`;
+                    } else if (item.url) {
+                        msg += `   ▪ 🔗 Enlace: ${item.url}\n`;
+                    }
+                    msg += `\n`;
+                });
 
-            msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-            msg += `💰 *TOTAL: S/ ${totalPrice.toFixed(2)}*\n\n`;
+                msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+                msg += `💰 *TOTAL ESTIMADO: S/ ${totalPrice.toFixed(2)}*\n\n`;
+                msg += `Hola, solicito una cotización formal y disponibilidad de stock para los productos listados. ¡Muchas gracias!`;
 
-            if (orderAction === 'order') {
-                msg += `Quedo atento a la confirmación de stock y los datos para realizar el pago por *${selectedPayment}*. ¡Muchas gracias!`;
             } else {
-                msg += `Por favor hacerme llegar la cotización formal con el detalle y tiempo de entrega. ¡Muchas gracias!`;
+                // ORDER / PURCHASE FORMAT (INCLUDES DELIVERY & PAYMENT METHOD)
+                const deliveryMode = document.querySelector('input[name="delivery_mode"]:checked')?.value || 'Recojo en Tienda Moyobamba 🏪';
+                const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value || 'Yape 📱';
+
+                msg += `🛒 *NUEVO PEDIDO DE COMPRA - ${COMPANY_NAME}*\n`;
+                msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+                msg += `👤 *Cliente:* ${name}\n`;
+                msg += `📄 *${docType} (${customerType === 'personal' ? 'Boleta' : 'Factura'}):* ${doc}\n`;
+                msg += `📱 *Teléfono:* ${phone}\n`;
+                msg += `📍 *Modalidad de Entrega:* ${deliveryMode}\n`;
+                if (address) msg += `🏠 *Dirección/Referencia:* ${address}\n`;
+                msg += `💳 *Método de Pago:* ${selectedPayment}\n`;
+                if (notes) msg += `📝 *Nota:* ${notes}\n`;
+                msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+                msg += `📦 *PRODUCTOS SOLICITADOS:*\n\n`;
+
+                cart.forEach((item, index) => {
+                    const subtotal = item.price * item.quantity;
+                    msg += `${index + 1}. *${item.name}*\n`;
+                    msg += `   ▪ Cantidad: ${item.quantity} und.\n`;
+                    msg += `   ▪ P. Unitario: S/ ${item.price.toFixed(2)}\n`;
+                    msg += `   ▪ Subtotal: S/ ${subtotal.toFixed(2)}\n`;
+                    if (item.image) {
+                        msg += `   ▪ 🖼️ Foto: ${item.image}\n`;
+                    } else if (item.url) {
+                        msg += `   ▪ 🔗 Enlace: ${item.url}\n`;
+                    }
+                    msg += `\n`;
+                });
+
+                msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+                msg += `💰 *TOTAL A PAGAR: S/ ${totalPrice.toFixed(2)}*\n\n`;
+                msg += `Quedo atento a la confirmación de stock y los datos para realizar el pago por *${selectedPayment}*. ¡Muchas gracias!`;
             }
 
             const whatsappUrl = `https://api.whatsapp.com/send?phone=${COMPANY_WHATSAPP}&text=${encodeURIComponent(msg)}`;
