@@ -169,7 +169,7 @@
                 💻 Todos los Productos
             </a>
             <button type="button" onclick="toggleMobileMenu(); openCart();" class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 transition flex items-center justify-between">
-                <span>🛒 Ver Mi Pedido / Cotización</span>
+                <span>🛒 Ver Mi Carrito / Pedido</span>
                 <span id="mobile-nav-cart-count" class="px-2 py-0.5 rounded-full bg-blue-600 text-white text-xs font-black">0</span>
             </button>
             <a href="{{ route('catalog.pdf') }}" class="block px-3.5 py-2.5 rounded-xl text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 transition">
@@ -197,7 +197,7 @@
         <!-- Floating Cart Button with Counter -->
         <button type="button" onclick="openCart()"
                 class="relative flex items-center justify-center w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full shadow-2xl shadow-blue-600/50 hover:scale-110 transition transform active:scale-95 cursor-pointer"
-                title="Ver carrito de cotización y pedidos">
+                title="Ver carrito de compras">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
             </svg>
@@ -209,13 +209,13 @@
            class="flex items-center justify-center w-14 h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-2xl shadow-emerald-500/50 hover:scale-110 transition transform active:scale-95 cursor-pointer animate-bounce-subtle"
            title="WhatsApp Directo">
             <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24">
-                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.766-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
+                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.768-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
             </svg>
         </a>
     </div>
 
     <!-- ========================================================================= -->
-    <!-- SLIDE-OVER CART DRAWER & CHECKOUT MODAL (SMART ORDER VS QUOTE) -->
+    <!-- SLIDE-OVER CART DRAWER & ORDER CHECKOUT -->
     <!-- ========================================================================= -->
     <div id="cart-backdrop" onclick="closeCart()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 hidden transition-opacity"></div>
 
@@ -229,7 +229,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="font-extrabold text-white text-base">Carrito & Cotizador</h3>
+                    <h3 class="font-extrabold text-white text-base">Carrito de Compras</h3>
                     <p class="text-xs text-blue-200" id="drawer-items-count">0 productos seleccionados</p>
                 </div>
             </div>
@@ -251,7 +251,7 @@
                     </svg>
                 </div>
                 <h4 class="font-extrabold text-slate-800 text-base">Tu carrito está vacío</h4>
-                <p class="text-xs text-slate-400 max-w-xs mx-auto">Explora nuestro catálogo y agrega productos para cotizar o pedir al instante.</p>
+                <p class="text-xs text-slate-400 max-w-xs mx-auto">Explora nuestro catálogo y agrega productos para realizar tu pedido al instante.</p>
                 <button type="button" onclick="closeCart()" class="mt-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-600/25 transition cursor-pointer">
                     Ver Catálogo
                 </button>
@@ -262,36 +262,11 @@
                 <!-- Dynamically injected by JS -->
             </div>
 
-            <!-- Checkout Configuration Section -->
+            <!-- Checkout Form Section -->
             <div id="cart-checkout-section" class="hidden space-y-4 pt-4 border-t border-slate-200">
                 
-                <!-- 1. INTENCIÓN: ¿Comprar Ahora o Solicitar Cotización? -->
+                <!-- 1. TIPO DE ENTREGA / ENVÍO -->
                 <div>
-                    <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
-                        Selecciona el tipo de solicitud <span class="text-rose-500">*</span>
-                    </label>
-                    <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
-                        <button type="button" id="action-btn-order" onclick="setOrderAction('order')" class="py-2.5 px-3 rounded-lg text-xs font-black transition bg-white text-emerald-700 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
-                            <span>🛍️ Pedido / Compra</span>
-                        </button>
-                        <button type="button" id="action-btn-quote" onclick="setOrderAction('quote')" class="py-2.5 px-3 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 cursor-pointer">
-                            <span>📄 Solo Cotización</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Info message when in Quotation Mode -->
-                <div id="quote-info-box" class="hidden p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-xs">
-                    <div class="flex items-center gap-2 font-bold mb-1">
-                        <span>ℹ️ Modo Cotización Activado</span>
-                    </div>
-                    <p class="text-[11px] text-blue-700 leading-relaxed">
-                        En modo cotización <strong>no se requiere método de pago ni modalidad de entrega</strong>. Recibirás la proforma formal de precios y disponibilidad por WhatsApp.
-                    </p>
-                </div>
-
-                <!-- 2. TIPO DE ENTREGA / ENVÍO (Visible SOLO en modo Compra / Pedido) -->
-                <div id="delivery-mode-container">
                     <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
                         Modalidad de Entrega <span class="text-rose-500">*</span>
                     </label>
@@ -334,18 +309,18 @@
                     </div>
                 </div>
 
-                <!-- 3. TIPO DE COMPROBANTE / CLIENTE -->
+                <!-- 2. TIPO DE COMPROBANTE & DATOS DEL CLIENTE -->
                 <div class="space-y-3 pt-2 border-t border-slate-100">
                     <div class="flex items-center justify-between">
                         <label class="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
-                            Datos del Solicitante / Cliente
+                            Datos del Comprador
                         </label>
                         <div class="flex gap-1 bg-slate-100 p-0.5 rounded-lg text-[11px]">
                             <button type="button" id="type-btn-personal" onclick="setCustomerType('personal')" class="px-2.5 py-1 rounded-md font-bold transition bg-white text-blue-700 shadow-xs cursor-pointer">
-                                Persona (DNI)
+                                Boleta (DNI)
                             </button>
                             <button type="button" id="type-btn-business" onclick="setCustomerType('business')" class="px-2.5 py-1 rounded-md font-bold transition text-slate-500 hover:text-slate-800 cursor-pointer">
-                                Empresa (RUC)
+                                Factura (RUC)
                             </button>
                         </div>
                     </div>
@@ -373,14 +348,14 @@
                         </div>
 
                         <div class="sm:col-span-2">
-                            <label id="order-address-label" class="block text-[11px] font-bold text-slate-600 mb-1">Dirección / Referencia de Entrega</label>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Dirección / Referencia de Entrega</label>
                             <input type="text" id="order-address" placeholder="Ej. Jr. Alonso de Alvarado 450, Moyobamba" class="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
                         </div>
                     </div>
                 </div>
 
-                <!-- 4. MÉTODO DE PAGO PREFERIDO (Visible SOLO en modo Compra / Pedido) -->
-                <div id="payment-method-container" class="space-y-2 pt-2 border-t border-slate-100">
+                <!-- 3. MÉTODO DE PAGO PREFERIDO -->
+                <div class="space-y-2 pt-2 border-t border-slate-100">
                     <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
                         Método de Pago Preferido <span class="text-rose-500">*</span>
                     </label>
@@ -411,10 +386,10 @@
                     </div>
                 </div>
 
-                <!-- 5. NOTAS ADICIONALES -->
+                <!-- 4. NOTAS ADICIONALES -->
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-600 mb-1">Notas o Consulta adicional (Opcional)</label>
-                    <textarea id="order-notes" rows="2" placeholder="Ej. ¿Tienen descuento por volumen o alguna especificación?" class="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"></textarea>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">Notas o Indicaciones del Pedido (Opcional)</label>
+                    <textarea id="order-notes" rows="2" placeholder="Ej. Entregar después de las 3pm / Confirmar color" class="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"></textarea>
                 </div>
             </div>
         </div>
@@ -422,20 +397,20 @@
         <!-- Drawer Footer: Totals and WhatsApp Action -->
         <div id="cart-drawer-footer" class="hidden p-4 sm:p-5 border-t border-slate-200 bg-slate-50 space-y-2.5">
             <div class="flex items-center justify-between text-slate-600 text-xs">
-                <span id="cart-subtotal-label">Subtotal productos:</span>
+                <span>Subtotal productos:</span>
                 <span id="cart-subtotal" class="font-bold text-slate-800">S/ 0.00</span>
             </div>
             <div class="flex items-center justify-between text-slate-900 font-extrabold text-base sm:text-lg pt-1 border-t border-slate-200/80">
-                <span id="cart-total-label">Total a Pagar:</span>
+                <span>Total a Pagar:</span>
                 <span id="cart-total" class="text-blue-600 font-black">S/ 0.00</span>
             </div>
 
             <!-- WhatsApp Checkout Button -->
             <button type="button" id="cart-submit-btn" onclick="submitWhatsAppOrder()" class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl font-black text-sm shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2 cursor-pointer">
                 <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.768-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
                 </svg>
-                <span id="btn-submit-text">Enviar Pedido de Compra por WhatsApp</span>
+                <span id="btn-submit-text">Enviar Pedido por WhatsApp</span>
             </button>
 
             <div class="flex items-center justify-center gap-4 pt-1">
@@ -531,7 +506,7 @@
                     <div class="flex flex-col space-y-2 text-xs">
                         <a href="{{ route('catalog.index') }}" class="hover:text-white transition">Inicio del Catálogo</a>
                         <a href="{{ route('catalog.index') }}#categorias" class="hover:text-white transition">Lista de Categorías</a>
-                        <a href="javascript:void(0)" onclick="openCart()" class="hover:text-white transition">Ver Mi Pedido</a>
+                        <a href="javascript:void(0)" onclick="openCart()" class="hover:text-white transition">Ver Mi Carrito</a>
                         <a href="{{ route('catalog.pdf') }}" class="hover:text-white transition">Descargar Catálogo (PDF)</a>
                         <a href="{{ route('login') }}" class="hover:text-white transition">Panel de Administración</a>
                     </div>
@@ -546,65 +521,12 @@
     </footer>
 
     <!-- ========================================================================= -->
-    <!-- JAVASCRIPT CART & ADVANCED WHATSAPP ORDER ENGINE -->
+    <!-- JAVASCRIPT CART & WHATSAPP ORDER ENGINE -->
     <!-- ========================================================================= -->
     <script>
         const COMPANY_WHATSAPP = '{{ $company->whatsapp_number ?? '51987654321' }}';
         const COMPANY_NAME = '{{ $company->name ?? 'TechStore' }}';
         let customerType = 'personal';
-        let orderAction = 'order'; // 'order' or 'quote'
-
-        function setOrderAction(action) {
-            orderAction = action;
-            const btnOrder = document.getElementById('action-btn-order');
-            const btnQuote = document.getElementById('action-btn-quote');
-            const btnSubmit = document.getElementById('cart-submit-btn');
-            const btnSubmitText = document.getElementById('btn-submit-text');
-            const totalLabel = document.getElementById('cart-total-label');
-            const subtotalLabel = document.getElementById('cart-subtotal-label');
-            const deliveryContainer = document.getElementById('delivery-mode-container');
-            const paymentContainer = document.getElementById('payment-method-container');
-            const quoteInfoBox = document.getElementById('quote-info-box');
-            const addressLabel = document.getElementById('order-address-label');
-            const addressInput = document.getElementById('order-address');
-
-            if (action === 'order') {
-                // Compra / Pedido Mode
-                btnOrder.className = 'py-2.5 px-3 rounded-lg text-xs font-black transition bg-white text-emerald-700 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer';
-                btnQuote.className = 'py-2.5 px-3 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 cursor-pointer';
-                
-                deliveryContainer.classList.remove('hidden');
-                paymentContainer.classList.remove('hidden');
-                quoteInfoBox.classList.add('hidden');
-
-                addressLabel.textContent = 'Dirección / Referencia de Entrega';
-                addressInput.placeholder = 'Ej. Jr. Alonso de Alvarado 450, Moyobamba';
-
-                totalLabel.textContent = 'Total a Pagar:';
-                subtotalLabel.textContent = 'Subtotal productos:';
-
-                btnSubmit.className = 'w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl font-black text-sm shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2 cursor-pointer';
-                btnSubmitText.textContent = 'Enviar Pedido de Compra por WhatsApp';
-            } else {
-                // Cotización Mode
-                btnQuote.className = 'py-2.5 px-3 rounded-lg text-xs font-black transition bg-white text-blue-700 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer';
-                btnOrder.className = 'py-2.5 px-3 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 cursor-pointer';
-                
-                // HIDE delivery and payment method
-                deliveryContainer.classList.add('hidden');
-                paymentContainer.classList.add('hidden');
-                quoteInfoBox.classList.remove('hidden');
-
-                addressLabel.textContent = 'Ciudad / Ubicación de referencia (Opcional)';
-                addressInput.placeholder = 'Ej. Moyobamba, Tarapoto, Rioja, etc.';
-
-                totalLabel.textContent = 'Total Estimado / Proforma:';
-                subtotalLabel.textContent = 'Subtotal estimado:';
-
-                btnSubmit.className = 'w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white rounded-xl font-black text-sm shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 cursor-pointer';
-                btnSubmitText.textContent = 'Solicitar Cotización por WhatsApp';
-            }
-        }
 
         function setCustomerType(type) {
             customerType = type;
@@ -827,132 +749,94 @@
             const submitText = document.getElementById('btn-submit-text');
             const originalText = submitText.textContent;
 
-            let msg = '';
+            const deliveryMode = document.querySelector('input[name="delivery_mode"]:checked')?.value || 'Recojo en Tienda Moyobamba 🏪';
+            const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value || 'Yape 📱';
 
-            if (orderAction === 'quote') {
-                // STRICT QUOTATION FORMAT (NO DELIVERY, NO PAYMENT METHOD)
-                msg += `📄 *SOLICITUD DE COTIZACIÓN - ${COMPANY_NAME}*\n`;
-                msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-                msg += `👤 *Solicitante:* ${name}\n`;
-                msg += `📄 *${docType}:* ${doc}\n`;
-                msg += `📱 *Teléfono:* ${phone}\n`;
-                if (address) msg += `📍 *Ciudad/Ubicación:* ${address}\n`;
-                if (notes) msg += `📝 *Consulta:* ${notes}\n`;
-                msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-                msg += `📦 *PRODUCTOS A COTIZAR:*\n\n`;
+            submitBtn.disabled = true;
+            submitText.textContent = 'Generando Ticket y Pedido...';
 
-                cart.forEach((item, index) => {
-                    const subtotal = item.price * item.quantity;
-                    msg += `${index + 1}. *${item.name}*\n`;
-                    msg += `   ▪ Cantidad: ${item.quantity} und.\n`;
-                    msg += `   ▪ Precio Ref.: S/ ${item.price.toFixed(2)}\n`;
-                    msg += `   ▪ Subtotal: S/ ${subtotal.toFixed(2)}\n`;
-                    if (item.image) {
-                        msg += `   ▪ 🖼️ Foto: ${item.image}\n`;
-                    } else if (item.url) {
-                        msg += `   ▪ 🔗 Enlace: ${item.url}\n`;
-                    }
-                    msg += `\n`;
+            let ticketUrl = '';
+            let orderNumber = '';
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const payload = {
+                    customer_name: name,
+                    customer_document: doc,
+                    customer_document_type: docType,
+                    customer_phone: phone,
+                    delivery_mode: deliveryMode,
+                    delivery_address: address,
+                    payment_method: selectedPayment,
+                    notes: notes,
+                    items: cart.map(item => ({
+                        product_id: item.id,
+                        product_name: item.name,
+                        quantity: item.quantity,
+                        unit_price: item.price
+                    }))
+                };
+
+                const res = await fetch('{{ route("orders.store") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
                 });
 
-                msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-                msg += `💰 *TOTAL ESTIMADO: S/ ${totalPrice.toFixed(2)}*\n\n`;
-                msg += `Hola, solicito una cotización formal y disponibilidad de stock para los productos listados. ¡Muchas gracias!`;
-
-                const whatsappUrl = `https://api.whatsapp.com/send?phone=${COMPANY_WHATSAPP}&text=${encodeURIComponent(msg)}`;
-                window.location.href = whatsappUrl;
-
-            } else {
-                // ORDER / PURCHASE FORMAT (INCLUDES DELIVERY, PAYMENT & PDF TICKET LINK)
-                const deliveryMode = document.querySelector('input[name="delivery_mode"]:checked')?.value || 'Recojo en Tienda Moyobamba 🏪';
-                const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value || 'Yape 📱';
-
-                submitBtn.disabled = true;
-                submitText.textContent = 'Generando Ticket y Pedido...';
-
-                let ticketUrl = '';
-                let orderNumber = '';
-
-                try {
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-                    const payload = {
-                        customer_name: name,
-                        customer_document: doc,
-                        customer_document_type: docType,
-                        customer_phone: phone,
-                        delivery_mode: deliveryMode,
-                        delivery_address: address,
-                        payment_method: selectedPayment,
-                        notes: notes,
-                        items: cart.map(item => ({
-                            product_id: item.id,
-                            product_name: item.name,
-                            quantity: item.quantity,
-                            unit_price: item.price
-                        }))
-                    };
-
-                    const res = await fetch('{{ route("orders.store") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (res.ok) {
-                        const data = await res.json();
-                        ticketUrl = data.ticket_url;
-                        orderNumber = data.order_number;
-                    }
-                } catch (e) {
-                    console.warn('No se pudo generar ticket en BD, continuando directo a WhatsApp:', e);
+                if (res.ok) {
+                    const data = await res.json();
+                    ticketUrl = data.ticket_url;
+                    orderNumber = data.order_number;
                 }
-
-                submitBtn.disabled = false;
-                submitText.textContent = originalText;
-
-                msg += `🛒 *NUEVO PEDIDO DE COMPRA - ${COMPANY_NAME}*\n`;
-                if (orderNumber) {
-                    msg += `🔖 *N° Pedido:* ${orderNumber}\n`;
-                }
-                msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-                msg += `👤 *Cliente:* ${name}\n`;
-                msg += `📄 *${docType} (${customerType === 'personal' ? 'Boleta' : 'Factura'}):* ${doc}\n`;
-                msg += `📱 *Teléfono:* ${phone}\n`;
-                msg += `📍 *Modalidad de Entrega:* ${deliveryMode}\n`;
-                if (address) msg += `🏠 *Dirección/Referencia:* ${address}\n`;
-                msg += `💳 *Método de Pago:* ${selectedPayment}\n`;
-                if (ticketUrl) {
-                    msg += `📄 *Descargar Ticket PDF:* ${ticketUrl}\n`;
-                }
-                if (notes) msg += `📝 *Nota:* ${notes}\n`;
-                msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-                msg += `📦 *PRODUCTOS SOLICITADOS:*\n\n`;
-
-                cart.forEach((item, index) => {
-                    const subtotal = item.price * item.quantity;
-                    msg += `${index + 1}. *${item.name}*\n`;
-                    msg += `   ▪ Cantidad: ${item.quantity} und.\n`;
-                    msg += `   ▪ P. Unitario: S/ ${item.price.toFixed(2)}\n`;
-                    msg += `   ▪ Subtotal: S/ ${subtotal.toFixed(2)}\n`;
-                    if (item.image) {
-                        msg += `   ▪ 🖼️ Foto: ${item.image}\n`;
-                    } else if (item.url) {
-                        msg += `   ▪ 🔗 Enlace: ${item.url}\n`;
-                    }
-                    msg += `\n`;
-                });
-
-                msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-                msg += `💰 *TOTAL A PAGAR: S/ ${totalPrice.toFixed(2)}*\n\n`;
-                msg += `Quedo atento a la confirmación de stock y los datos para realizar el pago por *${selectedPayment}*. ¡Muchas gracias!`;
-
-                const whatsappUrl = `https://api.whatsapp.com/send?phone=${COMPANY_WHATSAPP}&text=${encodeURIComponent(msg)}`;
-                window.location.href = whatsappUrl;
+            } catch (e) {
+                console.warn('No se pudo generar ticket en BD, continuando directo a WhatsApp:', e);
             }
+
+            submitBtn.disabled = false;
+            submitText.textContent = originalText;
+
+            let msg = `🛒 *NUEVO PEDIDO DE COMPRA - ${COMPANY_NAME}*\n`;
+            if (orderNumber) {
+                msg += `🔖 *N° Pedido:* ${orderNumber}\n`;
+            }
+            msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+            msg += `👤 *Cliente:* ${name}\n`;
+            msg += `📄 *${docType} (${customerType === 'personal' ? 'Boleta' : 'Factura'}):* ${doc}\n`;
+            msg += `📱 *Teléfono:* ${phone}\n`;
+            msg += `📍 *Modalidad de Entrega:* ${deliveryMode}\n`;
+            if (address) msg += `🏠 *Dirección/Referencia:* ${address}\n`;
+            msg += `💳 *Método de Pago:* ${selectedPayment}\n`;
+            if (ticketUrl) {
+                msg += `📄 *Descargar Ticket PDF:* ${ticketUrl}\n`;
+            }
+            if (notes) msg += `📝 *Nota:* ${notes}\n`;
+            msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+            msg += `📦 *PRODUCTOS SOLICITADOS:*\n\n`;
+
+            cart.forEach((item, index) => {
+                const subtotal = item.price * item.quantity;
+                msg += `${index + 1}. *${item.name}*\n`;
+                msg += `   ▪ Cantidad: ${item.quantity} und.\n`;
+                msg += `   ▪ P. Unitario: S/ ${item.price.toFixed(2)}\n`;
+                msg += `   ▪ Subtotal: S/ ${subtotal.toFixed(2)}\n`;
+                if (item.image) {
+                    msg += `   ▪ 🖼️ Foto: ${item.image}\n`;
+                } else if (item.url) {
+                    msg += `   ▪ 🔗 Enlace: ${item.url}\n`;
+                }
+                msg += `\n`;
+            });
+
+            msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+            msg += `💰 *TOTAL A PAGAR: S/ ${totalPrice.toFixed(2)}*\n\n`;
+            msg += `Quedo atento a la confirmación de stock y los datos para realizar el pago por *${selectedPayment}*. ¡Muchas gracias!`;
+
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${COMPANY_WHATSAPP}&text=${encodeURIComponent(msg)}`;
+            window.location.href = whatsappUrl;
         }
 
         // Run on load

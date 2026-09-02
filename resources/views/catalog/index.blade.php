@@ -31,7 +31,7 @@
             </h1>
             
             <p class="text-slate-300 text-xs sm:text-base lg:text-lg max-w-2xl mx-auto px-2 font-medium leading-relaxed">
-                Arma tu pedido o solicita tu cotización formal al instante con atención directa por WhatsApp y envíos rápidos.
+                Arma tu pedido al instante con atención directa por WhatsApp y envíos rápidos a Moyobamba, San Martín y todo el Perú.
             </p>
 
             <!-- Search Bar in Hero -->
