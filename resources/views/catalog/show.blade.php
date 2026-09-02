@@ -157,7 +157,7 @@
                                     <a href="{{ route('catalog.show', $rel->slug) }}" class="text-[11px] text-slate-400 hover:text-blue-600 font-bold">&rarr;</a>
                                 </div>
                                 <button type="button"
-                                        onclick="addToCart({{ $rel->id }}, '{{ addslashes($rel->name) }}', {{ $rel->price }}, '{{ $rel->image ? asset('storage/' . $rel->image) : '' }}', 1)"
+                                        onclick="addToCart({{ $rel->id }}, '{{ addslashes($rel->name) }}', {{ $rel->price }}, '{{ $rel->image ? asset('storage/' . $rel->image) : '' }}', '{{ route('catalog.show', $rel->slug) }}', 1)"
                                         class="w-full py-1.5 px-2.5 rounded-lg bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white text-[10px] sm:text-xs font-bold transition flex items-center justify-center gap-1">
                                     <span>+ Carrito</span>
                                 </button>
@@ -186,6 +186,7 @@
             '{{ addslashes($product->name) }}',
             {{ $product->price }},
             '{{ $product->image ? asset('storage/' . $product->image) : '' }}',
+            '{{ route('catalog.show', $product->slug) }}',
             qty
         );
     }
@@ -199,6 +200,11 @@
         msg += `▪ Cantidad: ${qty} und.\n`;
         msg += `▪ Precio Unitario: S/ {{ number_format($product->price, 2) }}\n`;
         msg += `▪ Subtotal Estimado: S/ ${total}\n`;
+        @if($product->image)
+            msg += `▪ 🖼️ Foto: {{ asset('storage/' . $product->image) }}\n`;
+        @else
+            msg += `▪ 🔗 Ver Producto: {{ route('catalog.show', $product->slug) }}\n`;
+        @endif
         msg += `━━━━━━━━━━━━━━━━━━━━\n`;
         msg += `Hola, deseo consultar la disponibilidad de este producto y los medios de pago disponibles (Yape / Plin / Transferencia). ¡Gracias!`;
 

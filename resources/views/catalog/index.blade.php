@@ -162,7 +162,7 @@
                                     </div>
 
                                     <button type="button"
-                                            onclick="addToCart({{ $prod->id }}, '{{ addslashes($prod->name) }}', {{ $prod->price }}, '{{ $prod->image ? asset('storage/' . $prod->image) : '' }}', 1)"
+                                            onclick="addToCart({{ $prod->id }}, '{{ addslashes($prod->name) }}', {{ $prod->price }}, '{{ $prod->image ? asset('storage/' . $prod->image) : '' }}', '{{ route('catalog.show', $prod->slug) }}', 1)"
                                             class="w-full py-1.5 sm:py-2 px-3 rounded-lg sm:rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>

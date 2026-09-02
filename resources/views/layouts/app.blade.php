@@ -468,18 +468,21 @@
             updateCartUI();
         }
 
-        function addToCart(id, name, price, image = null, quantity = 1) {
+        function addToCart(id, name, price, image = null, url = null, quantity = 1) {
             quantity = parseInt(quantity) || 1;
             const existingIndex = cart.findIndex(item => item.id === id);
 
             if (existingIndex > -1) {
                 cart[existingIndex].quantity += quantity;
+                if (image) cart[existingIndex].image = image;
+                if (url) cart[existingIndex].url = url;
             } else {
                 cart.push({
                     id: id,
                     name: name,
                     price: parseFloat(price),
                     image: image,
+                    url: url,
                     quantity: quantity
                 });
             }
@@ -546,9 +549,9 @@
 
                 if (container) {
                     container.innerHTML = cart.map(item => `
-                        <div class="pt-3 first:pt-0 flex items-center justify-between gap-3">
+                        <div class="pt-3 first:pt-0 flex items-center justify-between gap-3 bg-slate-50/50 p-2.5 rounded-xl border border-slate-100">
                             <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-12 h-12 rounded-xl bg-slate-100 p-1 flex-shrink-0 flex items-center justify-center border border-slate-200/80">
+                                <div class="w-14 h-14 rounded-xl bg-white p-1 flex-shrink-0 flex items-center justify-center border border-slate-200 shadow-xs overflow-hidden">
                                     ${item.image ? `<img src="${item.image}" alt="${item.name}" class="w-full h-full object-contain">` : `
                                     <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -556,12 +559,13 @@
                                 </div>
                                 <div class="min-w-0">
                                     <h4 class="font-bold text-slate-800 text-xs truncate">${item.name}</h4>
-                                    <p class="text-[11px] text-blue-600 font-extrabold">S/ ${item.price.toFixed(2)} c/u</p>
+                                    <p class="text-xs text-blue-600 font-extrabold">S/ ${item.price.toFixed(2)} c/u</p>
+                                    ${item.image ? `<a href="${item.image}" target="_blank" class="text-[10px] text-slate-400 hover:text-blue-600 underline flex items-center gap-1 mt-0.5"><span>Ver foto grande</span></a>` : ''}
                                 </div>
                             </div>
 
                             <div class="flex items-center gap-2 flex-shrink-0">
-                                <div class="flex items-center border border-slate-200 rounded-lg bg-slate-50">
+                                <div class="flex items-center border border-slate-200 rounded-lg bg-white shadow-xs">
                                     <button type="button" onclick="updateItemQuantity(${item.id}, -1)" class="px-2 py-1 text-slate-600 hover:text-rose-600 font-bold text-xs">-</button>
                                     <span class="px-2 text-xs font-bold text-slate-800">${item.quantity}</span>
                                     <button type="button" onclick="updateItemQuantity(${item.id}, 1)" class="px-2 py-1 text-slate-600 hover:text-blue-600 font-bold text-xs">+</button>
@@ -632,7 +636,7 @@
             const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value || 'Yape / Transferencia';
             const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-            // Construct formatted WhatsApp message
+            // Construct formatted WhatsApp message with image links
             let msg = `🛒 *NUEVO PEDIDO / COTIZACIÓN - ${COMPANY_NAME}*\n`;
             msg += `━━━━━━━━━━━━━━━━━━━━\n`;
             msg += `👤 *Cliente:* ${name}\n`;
@@ -640,14 +644,20 @@
             msg += `💳 *Método de Pago:* ${selectedPayment}\n`;
             if (notes) msg += `📝 *Nota:* ${notes}\n`;
             msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-            msg += `📦 *DETALLE DE PRODUCTOS:*\n\n`;
+            msg += `📦 *PRODUCTOS SOLICITADOS:*\n\n`;
 
             cart.forEach((item, index) => {
                 const subtotal = item.price * item.quantity;
                 msg += `${index + 1}. *${item.name}*\n`;
                 msg += `   ▪ Cantidad: ${item.quantity} und.\n`;
-                msg += `   ▪ P. Unitario: S/ ${item.price.toFixed(2)}\n`;
-                msg += `   ▪ Subtotal: S/ ${subtotal.toFixed(2)}\n\n`;
+                msg += `   ▪ Precio Unitario: S/ ${item.price.toFixed(2)}\n`;
+                msg += `   ▪ Subtotal: S/ ${subtotal.toFixed(2)}\n`;
+                if (item.image) {
+                    msg += `   ▪ 🖼️ Foto: ${item.image}\n`;
+                } else if (item.url) {
+                    msg += `   ▪ 🔗 Enlace: ${item.url}\n`;
+                }
+                msg += `\n`;
             });
 
             msg += `━━━━━━━━━━━━━━━━━━━━\n`;
