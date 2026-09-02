@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: catalogo-virtual
+    env: php
+    plan: free
+    region: oregon
+    buildCommand: composer install --no-dev --optimize-autoloader && php artisan storage:link || true
+    startCommand: php artisan migrate --force && php artisan db:seed --class=AdminUserSeeder --force && php artisan serve --host=0.0.0.0 --port=$PORT
+    envVars:
+      - key: APP_KEY
+        value: base64:BBPGlkCnlMThDkU23YeCMHvP7ZAfe5bUc2ynzkfuDqs=
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: DB_CONNECTION
+        value: sqlite
+      - key: DB_DATABASE
+        value: database/database.sqlite
+      - key: SESSION_DRIVER
+        value: cookie
