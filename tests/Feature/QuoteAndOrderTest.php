@@ -48,6 +48,15 @@ class QuoteAndOrderTest extends TestCase
         $response->assertSee('Cotizaciones Registradas');
     }
 
+    public function test_admin_can_view_create_quote_page(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('quotes.create'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Datos del Cliente y Cotización');
+        $response->assertSee('Días de Validez de la Oferta');
+    }
+
     public function test_admin_can_create_quote(): void
     {
         $payload = [

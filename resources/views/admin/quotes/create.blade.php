@@ -69,7 +69,7 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Días de Validez de la Oferta</label>
-                    <input type="number" name="validity_days" value="{{ old('validity_days', 15 Webber ?? 15) }}" min="1" max="180" class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <input type="number" name="validity_days" value="{{ old('validity_days', 15) }}" min="1" max="180" class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 </div>
             </div>
         </div>
