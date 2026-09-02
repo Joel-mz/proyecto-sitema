@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>@yield('title', 'Catálogo Virtual de Productos') - {{ $company->name ?? 'Catálogo' }}</title>
     <meta name="description" content="@yield('meta_description', $company->description ?? 'Descubre nuestro catálogo virtual con los mejores productos y precios actualizados.')">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -790,7 +791,7 @@
             }
         }
 
-        function submitWhatsAppOrder() {
+        async function submitWhatsAppOrder() {
             if (cart.length === 0) {
                 alert('El carrito está vacío.');
                 return;
@@ -821,6 +822,10 @@
             const notes = document.getElementById('order-notes').value.trim();
             const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const docType = customerType === 'personal' ? 'DNI' : 'RUC';
+
+            const submitBtn = document.getElementById('cart-submit-btn');
+            const submitText = document.getElementById('btn-submit-text');
+            const originalText = submitText.textContent;
 
             let msg = '';
 
@@ -854,12 +859,65 @@
                 msg += `💰 *TOTAL ESTIMADO: S/ ${totalPrice.toFixed(2)}*\n\n`;
                 msg += `Hola, solicito una cotización formal y disponibilidad de stock para los productos listados. ¡Muchas gracias!`;
 
+                const whatsappUrl = `https://api.whatsapp.com/send?phone=${COMPANY_WHATSAPP}&text=${encodeURIComponent(msg)}`;
+                window.location.href = whatsappUrl;
+
             } else {
-                // ORDER / PURCHASE FORMAT (INCLUDES DELIVERY & PAYMENT METHOD)
+                // ORDER / PURCHASE FORMAT (INCLUDES DELIVERY, PAYMENT & PDF TICKET LINK)
                 const deliveryMode = document.querySelector('input[name="delivery_mode"]:checked')?.value || 'Recojo en Tienda Moyobamba 🏪';
                 const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value || 'Yape 📱';
 
+                submitBtn.disabled = true;
+                submitText.textContent = 'Generando Ticket y Pedido...';
+
+                let ticketUrl = '';
+                let orderNumber = '';
+
+                try {
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    const payload = {
+                        customer_name: name,
+                        customer_document: doc,
+                        customer_document_type: docType,
+                        customer_phone: phone,
+                        delivery_mode: deliveryMode,
+                        delivery_address: address,
+                        payment_method: selectedPayment,
+                        notes: notes,
+                        items: cart.map(item => ({
+                            product_id: item.id,
+                            product_name: item.name,
+                            quantity: item.quantity,
+                            unit_price: item.price
+                        }))
+                    };
+
+                    const res = await fetch('{{ route("orders.store") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        ticketUrl = data.ticket_url;
+                        orderNumber = data.order_number;
+                    }
+                } catch (e) {
+                    console.warn('No se pudo generar ticket en BD, continuando directo a WhatsApp:', e);
+                }
+
+                submitBtn.disabled = false;
+                submitText.textContent = originalText;
+
                 msg += `🛒 *NUEVO PEDIDO DE COMPRA - ${COMPANY_NAME}*\n`;
+                if (orderNumber) {
+                    msg += `🔖 *N° Pedido:* ${orderNumber}\n`;
+                }
                 msg += `━━━━━━━━━━━━━━━━━━━━\n`;
                 msg += `👤 *Cliente:* ${name}\n`;
                 msg += `📄 *${docType} (${customerType === 'personal' ? 'Boleta' : 'Factura'}):* ${doc}\n`;
@@ -867,6 +925,9 @@
                 msg += `📍 *Modalidad de Entrega:* ${deliveryMode}\n`;
                 if (address) msg += `🏠 *Dirección/Referencia:* ${address}\n`;
                 msg += `💳 *Método de Pago:* ${selectedPayment}\n`;
+                if (ticketUrl) {
+                    msg += `📄 *Descargar Ticket PDF:* ${ticketUrl}\n`;
+                }
                 if (notes) msg += `📝 *Nota:* ${notes}\n`;
                 msg += `━━━━━━━━━━━━━━━━━━━━\n`;
                 msg += `📦 *PRODUCTOS SOLICITADOS:*\n\n`;
@@ -888,10 +949,10 @@
                 msg += `━━━━━━━━━━━━━━━━━━━━\n`;
                 msg += `💰 *TOTAL A PAGAR: S/ ${totalPrice.toFixed(2)}*\n\n`;
                 msg += `Quedo atento a la confirmación de stock y los datos para realizar el pago por *${selectedPayment}*. ¡Muchas gracias!`;
-            }
 
-            const whatsappUrl = `https://api.whatsapp.com/send?phone=${COMPANY_WHATSAPP}&text=${encodeURIComponent(msg)}`;
-            window.location.href = whatsappUrl;
+                const whatsappUrl = `https://api.whatsapp.com/send?phone=${COMPANY_WHATSAPP}&text=${encodeURIComponent(msg)}`;
+                window.location.href = whatsappUrl;
+            }
         }
 
         // Run on load

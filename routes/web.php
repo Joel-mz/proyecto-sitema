@@ -3,10 +3,12 @@
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\QuoteController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PdfController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +17,10 @@ Route::get('/', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/categoria/{slug}', [CatalogController::class, 'category'])->name('catalog.category');
 Route::get('/producto/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
 Route::get('/catalogo-pdf', [PdfController::class, 'download'])->name('catalog.pdf');
+
+// Public Orders & Ticket PDF Routes
+Route::post('/pedidos/registrar', [OrderController::class, 'store'])->name('orders.store');
+Route::get('/pedidos/{order}/ticket-pdf', [OrderController::class, 'ticketPdf'])->name('orders.ticket');
 
 // Auth Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -25,6 +31,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::prefix('admin')->middleware('auth')->group(function () {
     // Shared Dashboard & Catalog Management (Admin & Editor)
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
+
+    // Internal Quotes Module
+    Route::get('/quotes/{quote}/pdf', [QuoteController::class, 'pdf'])->name('quotes.pdf');
+    Route::patch('/quotes/{quote}/status', [QuoteController::class, 'updateStatus'])->name('quotes.status');
+    Route::resource('quotes', QuoteController::class);
 
     // Categories Bulk Actions
     Route::post('/categories/bulk-delete', [CategoryController::class, 'bulkDelete'])->name('categories.bulkDelete');
