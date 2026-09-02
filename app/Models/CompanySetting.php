@@ -21,6 +21,22 @@ class CompanySetting extends Model
         'description',
     ];
 
+    /**
+     * Get clean international WhatsApp number for WhatsApp links (e.g. 51987654321).
+     */
+    public function getWhatsappNumberAttribute(): string
+    {
+        $raw = $this->whatsapp ?: $this->phone ?: '51987654321';
+        $clean = preg_replace('/[^0-9]/', '', $raw);
+
+        // If it's a 9-digit Peruvian cell phone number starting with 9, prepend Peru country code (51)
+        if (strlen($clean) === 9 && str_starts_with($clean, '9')) {
+            $clean = '51'.$clean;
+        }
+
+        return $clean ?: '51987654321';
+    }
+
     public static function getSettings(): self
     {
         return self::firstOrCreate(

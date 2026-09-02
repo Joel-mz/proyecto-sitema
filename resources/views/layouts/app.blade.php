@@ -67,16 +67,14 @@
                     @endif
                 </div>
 
-                @if($company->whatsapp)
-                    <div class="flex items-center gap-2 flex-shrink-0 pl-2">
-                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $company->whatsapp) }}" target="_blank" class="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-bold transition">
-                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.766-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
-                            </svg>
-                            <span>WhatsApp Directo</span>
-                        </a>
-                    </div>
-                @endif
+                <div class="flex items-center gap-2 flex-shrink-0 pl-2">
+                    <a href="https://api.whatsapp.com/send?phone={{ $company->whatsapp_number ?? '51987654321' }}&text={{ urlencode('Hola, deseo realizar una consulta sobre el catálogo de productos.') }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-bold transition">
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.766-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
+                        </svg>
+                        <span>WhatsApp Directo</span>
+                    </a>
+                </div>
             </div>
         </div>
     @endif
@@ -199,7 +197,7 @@
     <div class="fixed bottom-5 right-5 z-40 flex flex-col gap-3">
         <!-- Floating Cart Button -->
         <button type="button" onclick="openCart()"
-                class="relative flex items-center justify-center w-13 h-13 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl shadow-blue-600/50 hover:scale-105 transition transform active:scale-95"
+                class="relative flex items-center justify-center w-13 h-13 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl shadow-blue-600/50 hover:scale-105 transition transform active:scale-95 cursor-pointer"
                 title="Ver carrito de cotización">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -208,15 +206,13 @@
         </button>
 
         <!-- Floating WhatsApp Direct Button -->
-        @if(isset($company) && $company->whatsapp)
-            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $company->whatsapp) }}" target="_blank"
-               class="flex items-center justify-center w-13 h-13 p-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-2xl shadow-emerald-500/50 hover:scale-105 transition transform active:scale-95"
-               title="WhatsApp Directo">
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.766-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
-                </svg>
-            </a>
-        @endif
+        <a href="https://api.whatsapp.com/send?phone={{ $company->whatsapp_number ?? '51987654321' }}&text={{ urlencode('Hola, deseo realizar una consulta sobre el catálogo de productos.') }}" target="_blank" rel="noopener noreferrer"
+           class="flex items-center justify-center w-13 h-13 p-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-2xl shadow-emerald-500/50 hover:scale-105 transition transform active:scale-95 cursor-pointer"
+           title="WhatsApp Directo">
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.766-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
+            </svg>
+        </a>
     </div>
 
     <!-- ========================================================================= -->
@@ -224,9 +220,9 @@
     <!-- ========================================================================= -->
     <div id="cart-backdrop" onclick="closeCart()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden transition-opacity"></div>
 
-    <div id="cart-drawer" class="fixed inset-y-0 right-0 z-50 w-full sm:w-[460px] bg-white shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-white shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
         <!-- Drawer Header -->
-        <div class="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
             <div class="flex items-center gap-2.5">
                 <div class="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-sm">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -234,8 +230,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="font-bold text-slate-900 text-base">Carrito de Cotización</h3>
-                    <p class="text-xs text-slate-500" id="drawer-items-count">0 productos seleccionados</p>
+                    <h3 class="font-bold text-slate-900 text-sm sm:text-base">Carrito de Cotización</h3>
+                    <p class="text-[11px] text-slate-500" id="drawer-items-count">0 productos seleccionados</p>
                 </div>
             </div>
 
@@ -247,7 +243,7 @@
         </div>
 
         <!-- Drawer Content: Items List & Form -->
-        <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+        <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5">
             <!-- Empty State -->
             <div id="cart-empty-state" class="py-16 text-center space-y-3">
                 <div class="w-16 h-16 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center mx-auto">
@@ -257,71 +253,108 @@
                 </div>
                 <h4 class="font-bold text-slate-800 text-sm">Tu carrito está vacío</h4>
                 <p class="text-xs text-slate-400 max-w-xs mx-auto">Agrega productos del catálogo para armar tu cotización o pedido rápidamente.</p>
-                <button type="button" onclick="closeCart()" class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-sm">
+                <button type="button" onclick="closeCart()" class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-sm hover:bg-blue-700 transition">
                     Explorar Productos
                 </button>
             </div>
 
             <!-- Items List -->
-            <div id="cart-items-container" class="space-y-3 divide-y divide-slate-100">
+            <div id="cart-items-container" class="space-y-2.5">
                 <!-- Dynamically injected by JS -->
             </div>
 
             <!-- Customer Details & Payment Method Form (Visible when cart has items) -->
             <div id="cart-checkout-section" class="hidden space-y-4 pt-4 border-t border-slate-200">
-                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Datos para la Cotización</h4>
+                <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Datos para la Cotización</h4>
+                    <span class="text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded-full">Paso final</span>
+                </div>
+
+                <!-- Client Type Selector: Persona Natural vs Empresa -->
+                <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
+                    <button type="button" id="type-btn-personal" onclick="setCustomerType('personal')" class="py-1.5 px-3 rounded-lg text-xs font-bold transition bg-white text-blue-700 shadow-xs">
+                        👤 Persona Natural
+                    </button>
+                    <button type="button" id="type-btn-business" onclick="setCustomerType('business')" class="py-1.5 px-3 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900">
+                        🏢 Empresa (RUC)
+                    </button>
+                </div>
 
                 <div class="space-y-3">
+                    <!-- Name or Company Name -->
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Nombre Completo <span class="text-rose-500">*</span></label>
-                        <input type="text" id="order-name" placeholder="Ej. Carlos Mendoza" class="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <label id="lbl-name" class="block text-[11px] font-bold text-slate-600 mb-1">
+                            Nombre Completo <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="text" id="order-name" placeholder="Ej. Carlos Mendoza" class="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
                     </div>
 
+                    <!-- DNI or RUC -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label id="lbl-doc" class="block text-[11px] font-bold text-slate-600 mb-1">
+                                DNI (8 dígitos) <span class="text-rose-500">*</span>
+                            </label>
+                            <input type="text" id="order-doc" maxlength="11" placeholder="Ej. 74859612" class="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">
+                                Teléfono / Celular <span class="text-rose-500">*</span>
+                            </label>
+                            <input type="tel" id="order-phone" placeholder="Ej. 987654321" class="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+                        </div>
+                    </div>
+
+                    <!-- Delivery Address -->
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Dirección o Ciudad de Entrega</label>
-                        <input type="text" id="order-address" placeholder="Ej. Lima, Av. Arequipa 1234 o Envío a Provincia" class="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Dirección / Destino de Entrega (Opcional)</label>
+                        <input type="text" id="order-address" placeholder="Ej. Lima, Av. Tacna 450 o Envío a Provincia" class="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
                     </div>
 
                     <!-- Payment Method Selector -->
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-2">Método de Pago Preferido <span class="text-rose-500">*</span></label>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1.5">
+                            Método de Pago Preferido <span class="text-rose-500">*</span>
+                        </label>
                         <div class="grid grid-cols-2 gap-2">
                             <!-- Yape -->
-                            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:border-purple-400 has-[:checked]:border-purple-600 has-[:checked]:bg-purple-50/50 transition">
+                            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-purple-400 has-[:checked]:border-purple-600 has-[:checked]:bg-purple-50/60 transition">
                                 <input type="radio" name="payment_method" value="Yape 📱" checked class="text-purple-600 focus:ring-purple-500">
                                 <span class="text-xs font-bold text-slate-800">Yape</span>
                             </label>
 
                             <!-- Plin -->
-                            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:border-cyan-400 has-[:checked]:border-cyan-600 has-[:checked]:bg-cyan-50/50 transition">
+                            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-cyan-400 has-[:checked]:border-cyan-600 has-[:checked]:bg-cyan-50/60 transition">
                                 <input type="radio" name="payment_method" value="Plin 🟣" class="text-cyan-600 focus:ring-cyan-500">
                                 <span class="text-xs font-bold text-slate-800">Plin</span>
                             </label>
 
                             <!-- Transferencia Bancaria -->
-                            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:border-blue-400 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50/50 transition">
+                            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-blue-400 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50/60 transition">
                                 <input type="radio" name="payment_method" value="Transferencia Bancaria (BCP / BBVA / Interbank) 🏦" class="text-blue-600 focus:ring-blue-500">
                                 <span class="text-xs font-bold text-slate-800">Transferencia</span>
                             </label>
 
                             <!-- Efectivo / Contraentrega -->
-                            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:border-emerald-400 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50/50 transition">
+                            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-emerald-400 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50/60 transition">
                                 <input type="radio" name="payment_method" value="Efectivo / Pago contra entrega 💵" class="text-emerald-600 focus:ring-emerald-500">
                                 <span class="text-xs font-bold text-slate-800">Contraentrega</span>
                             </label>
                         </div>
                     </div>
 
+                    <!-- Notes -->
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Notas adicionales o consulta</label>
-                        <textarea id="order-notes" rows="2" placeholder="¿Deseas boleta/factura o alguna especificación?" class="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Notas o Consulta Adicional (Opcional)</label>
+                        <textarea id="order-notes" rows="2" placeholder="¿Deseas boleta o factura? ¿Alguna especificación técnica?" class="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"></textarea>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Drawer Footer: Totals and WhatsApp Action -->
-        <div id="cart-drawer-footer" class="hidden p-4 sm:p-6 border-t border-slate-200 bg-slate-50 space-y-3">
+        <div id="cart-drawer-footer" class="hidden p-4 sm:p-5 border-t border-slate-200 bg-slate-50 space-y-2.5">
             <div class="flex items-center justify-between text-slate-600 text-xs">
                 <span>Subtotal estimado:</span>
                 <span id="cart-subtotal" class="font-bold text-slate-800">S/ 0.00</span>
@@ -332,15 +365,15 @@
             </div>
 
             <!-- WhatsApp Checkout Button -->
-            <button type="button" onclick="submitWhatsAppOrder()" class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-600/25 transition flex items-center justify-center gap-2">
+            <button type="button" onclick="submitWhatsAppOrder()" class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-600/25 transition flex items-center justify-center gap-2 cursor-pointer">
                 <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.766-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
                 </svg>
-                <span>Pedir / Cotizar por WhatsApp</span>
+                <span>Comprar / Cotizar por WhatsApp</span>
             </button>
 
             <div class="flex items-center justify-center gap-4 pt-1">
-                <button type="button" onclick="clearCart()" class="text-[11px] text-slate-400 hover:text-rose-500 transition font-medium">
+                <button type="button" onclick="clearCart()" class="text-[11px] text-slate-400 hover:text-rose-500 transition font-medium cursor-pointer">
                     Vaciar Carrito
                 </button>
             </div>
@@ -414,16 +447,14 @@
                             </p>
                         @endif
 
-                        @if($company->whatsapp)
-                            <p class="flex items-center gap-2">
-                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $company->whatsapp) }}" target="_blank" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1.5 transition">
-                                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
-                                    </svg>
-                                    <span>WhatsApp: {{ $company->whatsapp }}</span>
-                                </a>
-                            </p>
-                        @endif
+                        <p class="flex items-center gap-2">
+                            <a href="https://api.whatsapp.com/send?phone={{ $company->whatsapp_number ?? '51987654321' }}&text={{ urlencode('Hola, deseo realizar una consulta sobre el catálogo de productos.') }}" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1.5 transition">
+                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.768-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
+                                </svg>
+                                <span>WhatsApp: {{ $company->whatsapp ?? '+51 987 654 321' }}</span>
+                            </a>
+                        </p>
 
                         <div class="pt-2 flex items-center gap-1.5 flex-wrap">
                             <span class="px-2 py-0.5 rounded bg-purple-900/60 text-purple-300 text-[10px] font-bold border border-purple-700/50">Yape</span>
@@ -457,8 +488,38 @@
     <!-- JAVASCRIPT CART & WHATSAPP ENGINE -->
     <!-- ========================================================================= -->
     <script>
-        const COMPANY_WHATSAPP = '{{ isset($company) && $company->whatsapp ? preg_replace('/[^0-9]/', '', $company->whatsapp) : '51987654321' }}';
+        const COMPANY_WHATSAPP = '{{ $company->whatsapp_number ?? '51987654321' }}';
         const COMPANY_NAME = '{{ $company->name ?? 'TechStore' }}';
+        let customerType = 'personal';
+
+        // Customer type switcher
+        function setCustomerType(type) {
+            customerType = type;
+            const btnPersonal = document.getElementById('type-btn-personal');
+            const btnBusiness = document.getElementById('type-btn-business');
+            const lblName = document.getElementById('lbl-name');
+            const lblDoc = document.getElementById('lbl-doc');
+            const inputName = document.getElementById('order-name');
+            const inputDoc = document.getElementById('order-doc');
+
+            if (type === 'personal') {
+                btnPersonal.className = 'py-1.5 px-3 rounded-lg text-xs font-bold transition bg-white text-blue-700 shadow-xs';
+                btnBusiness.className = 'py-1.5 px-3 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900';
+                lblName.innerHTML = 'Nombre Completo <span class="text-rose-500">*</span>';
+                lblDoc.innerHTML = 'DNI (8 dígitos) <span class="text-rose-500">*</span>';
+                inputName.placeholder = 'Ej. Carlos Mendoza';
+                inputDoc.placeholder = 'Ej. 74859612';
+                inputDoc.maxLength = 8;
+            } else {
+                btnBusiness.className = 'py-1.5 px-3 rounded-lg text-xs font-bold transition bg-white text-blue-700 shadow-xs';
+                btnPersonal.className = 'py-1.5 px-3 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900';
+                lblName.innerHTML = 'Razón Social / Empresa <span class="text-rose-500">*</span>';
+                lblDoc.innerHTML = 'RUC (11 dígitos) <span class="text-rose-500">*</span>';
+                inputName.placeholder = 'Ej. Corporación Perú S.A.C.';
+                inputDoc.placeholder = 'Ej. 20601234567';
+                inputDoc.maxLength = 11;
+            }
+        }
 
         // Initialize cart from localStorage
         let cart = JSON.parse(localStorage.getItem('catalog_cart') || '[]');
@@ -549,9 +610,9 @@
 
                 if (container) {
                     container.innerHTML = cart.map(item => `
-                        <div class="pt-3 first:pt-0 flex items-center justify-between gap-3 bg-slate-50/50 p-2.5 rounded-xl border border-slate-100">
+                        <div class="pt-3 first:pt-0 flex items-center justify-between gap-3 bg-slate-50/70 p-2.5 rounded-xl border border-slate-200/60">
                             <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-14 h-14 rounded-xl bg-white p-1 flex-shrink-0 flex items-center justify-center border border-slate-200 shadow-xs overflow-hidden">
+                                <div class="w-13 h-13 rounded-xl bg-white p-1 flex-shrink-0 flex items-center justify-center border border-slate-200 shadow-xs overflow-hidden">
                                     ${item.image ? `<img src="${item.image}" alt="${item.name}" class="w-full h-full object-contain">` : `
                                     <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -559,8 +620,7 @@
                                 </div>
                                 <div class="min-w-0">
                                     <h4 class="font-bold text-slate-800 text-xs truncate">${item.name}</h4>
-                                    <p class="text-xs text-blue-600 font-extrabold">S/ ${item.price.toFixed(2)} c/u</p>
-                                    ${item.image ? `<a href="${item.image}" target="_blank" class="text-[10px] text-slate-400 hover:text-blue-600 underline flex items-center gap-1 mt-0.5"><span>Ver foto grande</span></a>` : ''}
+                                    <p class="text-xs text-blue-600 font-black">S/ ${item.price.toFixed(2)} c/u</p>
                                 </div>
                             </div>
 
@@ -626,20 +686,37 @@
 
             const name = document.getElementById('order-name').value.trim();
             if (!name) {
-                alert('Por favor, ingresa tu Nombre Completo para generar el pedido.');
+                alert(customerType === 'personal' ? 'Por favor, ingresa tu Nombre Completo.' : 'Por favor, ingresa la Razón Social / Empresa.');
                 document.getElementById('order-name').focus();
+                return;
+            }
+
+            const doc = document.getElementById('order-doc').value.trim();
+            if (!doc) {
+                alert(customerType === 'personal' ? 'Por favor, ingresa tu DNI.' : 'Por favor, ingresa el número de RUC.');
+                document.getElementById('order-doc').focus();
+                return;
+            }
+
+            const phone = document.getElementById('order-phone').value.trim();
+            if (!phone) {
+                alert('Por favor, ingresa un número de Teléfono / Celular de contacto.');
+                document.getElementById('order-phone').focus();
                 return;
             }
 
             const address = document.getElementById('order-address').value.trim();
             const notes = document.getElementById('order-notes').value.trim();
-            const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value || 'Yape / Transferencia';
+            const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value || 'Yape 📱';
             const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const docType = customerType === 'personal' ? 'DNI (Boleta)' : 'RUC (Factura)';
 
-            // Construct formatted WhatsApp message with image links
+            // Construct formatted WhatsApp message with client data, DNI/RUC, payment method and product photos
             let msg = `🛒 *NUEVO PEDIDO / COTIZACIÓN - ${COMPANY_NAME}*\n`;
             msg += `━━━━━━━━━━━━━━━━━━━━\n`;
             msg += `👤 *Cliente:* ${name}\n`;
+            msg += `📄 *${docType}:* ${doc}\n`;
+            msg += `📱 *Teléfono:* ${phone}\n`;
             if (address) msg += `📍 *Dirección/Destino:* ${address}\n`;
             msg += `💳 *Método de Pago:* ${selectedPayment}\n`;
             if (notes) msg += `📝 *Nota:* ${notes}\n`;
@@ -662,14 +739,18 @@
 
             msg += `━━━━━━━━━━━━━━━━━━━━\n`;
             msg += `💰 *TOTAL ESTIMADO: S/ ${totalPrice.toFixed(2)}*\n\n`;
-            msg += `Quedo atento a la confirmación de stock y los datos para realizar el pago. ¡Muchas gracias!`;
+            msg += `Quedo atento a la confirmación de stock y los datos para realizar el pago por *${selectedPayment}*. ¡Muchas gracias!`;
 
-            const whatsappUrl = `https://wa.me/${COMPANY_WHATSAPP}?text=${encodeURIComponent(msg)}`;
-            window.open(whatsappUrl, '_blank');
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${COMPANY_WHATSAPP}&text=${encodeURIComponent(msg)}`;
+            
+            // Redirect directly to WhatsApp without popup blockers
+            window.location.href = whatsappUrl;
         }
 
         // Run on load
-        document.addEventListener('DOMContentLoaded', updateCartUI);
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartUI();
+        });
     </script>
 </body>
 </html>

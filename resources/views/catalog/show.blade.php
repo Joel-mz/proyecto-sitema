@@ -208,8 +208,8 @@
         msg += `━━━━━━━━━━━━━━━━━━━━\n`;
         msg += `Hola, deseo consultar la disponibilidad de este producto y los medios de pago disponibles (Yape / Plin / Transferencia). ¡Gracias!`;
 
-        const whatsappUrl = `https://wa.me/${COMPANY_WHATSAPP}?text=${encodeURIComponent(msg)}`;
-        window.open(whatsappUrl, '_blank');
+        const whatsappUrl = `https://api.whatsapp.com/send?phone=${COMPANY_WHATSAPP}&text=${encodeURIComponent(msg)}`;
+        window.location.href = whatsappUrl;
     }
 </script>
 @endsection
