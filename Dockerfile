@@ -16,9 +16,8 @@ RUN apt-get update && apt-get install -y \
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd
 
-# Configure Apache DocumentRoot to Laravel /public
-RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+# Configure Apache
+COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 RUN a2enmod rewrite
 
 # Install Composer
@@ -31,6 +30,12 @@ COPY . .
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# Create database file and set permissions
+RUN mkdir -p database storage/logs storage/framework/views storage/framework/sessions storage/framework/cache/data bootstrap/cache && \
+    touch database/database.sqlite && \
+    chmod -R 777 database storage bootstrap/cache && \
+    chmod 666 database/database.sqlite
 
 # Setup entrypoint script
 RUN chmod +x /var/www/html/docker-entrypoint.sh
