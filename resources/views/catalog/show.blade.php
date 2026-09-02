@@ -61,27 +61,48 @@
                     </div>
                 </div>
 
-                <!-- WhatsApp Direct Action Button -->
-                @if(isset($company) && $company->whatsapp)
-                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $company->whatsapp) }}?text={{ urlencode('Hola, deseo consultar por el producto: ' . $product->name . ' (Precio: S/ ' . number_format($product->price, 2) . ')') }}"
-                       target="_blank"
-                       class="w-full py-3.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-base shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.766-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
-                        </svg>
-                        <span>Pedir / Consultar por WhatsApp</span>
-                    </a>
-                @endif
+                <!-- Quantity & Cart Actions -->
+                <div class="space-y-3 pt-2">
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center border-2 border-slate-200 rounded-xl bg-slate-50 p-1">
+                            <button type="button" onclick="adjustProductQty(-1)" class="w-8 h-8 rounded-lg bg-white shadow-xs text-slate-700 hover:bg-slate-100 font-black text-base flex items-center justify-center transition">-</button>
+                            <input type="number" id="detail-product-qty" value="1" min="1" max="99" class="w-12 text-center bg-transparent font-extrabold text-slate-800 text-sm focus:outline-none" readonly>
+                            <button type="button" onclick="adjustProductQty(1)" class="w-8 h-8 rounded-lg bg-white shadow-xs text-slate-700 hover:bg-slate-100 font-black text-base flex items-center justify-center transition">+</button>
+                        </div>
+
+                        <!-- Add to Cart Button -->
+                        <button type="button"
+                                onclick="addProductToCartWithQty()"
+                                class="flex-1 py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white rounded-xl font-bold text-xs sm:text-sm shadow-md shadow-blue-600/20 transition flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            <span>Agregar al Carrito</span>
+                        </button>
+                    </div>
+
+                    <!-- Direct WhatsApp Single Order Button -->
+                    @if(isset($company) && $company->whatsapp)
+                        <button type="button"
+                                onclick="orderSingleWhatsApp()"
+                                class="w-full py-3.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.766-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
+                            </svg>
+                            <span>Consultar este producto por WhatsApp</span>
+                        </button>
+                    @endif
+                </div>
 
                 <!-- Description -->
-                <div class="space-y-2 sm:space-y-3">
+                <div class="space-y-2 sm:space-y-3 pt-2">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Descripción del Producto</h3>
                     <div class="text-slate-600 text-xs sm:text-base leading-relaxed whitespace-pre-line">
                         {{ $product->description ?: 'No se especificó una descripción detallada para este producto.' }}
                     </div>
                 </div>
 
-                <!-- Actions -->
+                <!-- Actions Back / PDF -->
                 <div class="pt-4 sm:pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center gap-2.5 sm:gap-4">
                     <a href="{{ route('catalog.index') }}" class="w-full sm:w-auto px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,9 +151,16 @@
                             </div>
                         </div>
                         <div class="p-3 sm:p-4 pt-0">
-                            <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
-                                <span class="font-extrabold text-blue-600 text-xs sm:text-sm">S/ {{ number_format($rel->price, 2) }}</span>
-                                <a href="{{ route('catalog.show', $rel->slug) }}" class="text-[11px] text-slate-400 hover:text-blue-600 font-bold">&rarr;</a>
+                            <div class="pt-2 border-t border-slate-100 flex flex-col gap-1.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-extrabold text-blue-600 text-xs sm:text-sm">S/ {{ number_format($rel->price, 2) }}</span>
+                                    <a href="{{ route('catalog.show', $rel->slug) }}" class="text-[11px] text-slate-400 hover:text-blue-600 font-bold">&rarr;</a>
+                                </div>
+                                <button type="button"
+                                        onclick="addToCart({{ $rel->id }}, '{{ addslashes($rel->name) }}', {{ $rel->price }}, '{{ $rel->image ? asset('storage/' . $rel->image) : '' }}', 1)"
+                                        class="w-full py-1.5 px-2.5 rounded-lg bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white text-[10px] sm:text-xs font-bold transition flex items-center justify-center gap-1">
+                                    <span>+ Carrito</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -142,4 +170,40 @@
     @endif
 
 </div>
+
+<script>
+    function adjustProductQty(delta) {
+        const input = document.getElementById('detail-product-qty');
+        let val = parseInt(input.value) || 1;
+        val = Math.max(1, Math.min(99, val + delta));
+        input.value = val;
+    }
+
+    function addProductToCartWithQty() {
+        const qty = parseInt(document.getElementById('detail-product-qty').value) || 1;
+        addToCart(
+            {{ $product->id }},
+            '{{ addslashes($product->name) }}',
+            {{ $product->price }},
+            '{{ $product->image ? asset('storage/' . $product->image) : '' }}',
+            qty
+        );
+    }
+
+    function orderSingleWhatsApp() {
+        const qty = parseInt(document.getElementById('detail-product-qty').value) || 1;
+        const total = ({{ $product->price }} * qty).toFixed(2);
+        let msg = `👋 *CONSULTA DE PRODUCTO - ${COMPANY_NAME}*\n`;
+        msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+        msg += `💻 *Producto:* {{ $product->name }}\n`;
+        msg += `▪ Cantidad: ${qty} und.\n`;
+        msg += `▪ Precio Unitario: S/ {{ number_format($product->price, 2) }}\n`;
+        msg += `▪ Subtotal Estimado: S/ ${total}\n`;
+        msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+        msg += `Hola, deseo consultar la disponibilidad de este producto y los medios de pago disponibles (Yape / Plin / Transferencia). ¡Gracias!`;
+
+        const whatsappUrl = `https://wa.me/${COMPANY_WHATSAPP}?text=${encodeURIComponent(msg)}`;
+        window.open(whatsappUrl, '_blank');
+    }
+</script>
 @endsection

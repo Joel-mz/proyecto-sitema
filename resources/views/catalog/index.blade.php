@@ -145,24 +145,31 @@
                             </div>
 
                             <!-- Footer Price & Action -->
-                            <div class="p-3 sm:p-5 pt-0 sm:pt-0">
-                                <div class="pt-2 sm:pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
-                                    <div>
-                                        <span class="text-[9px] sm:text-[10px] uppercase tracking-wider font-bold text-slate-400 block leading-none">Precio</span>
-                                        <span class="text-sm sm:text-lg font-extrabold text-blue-600 block">
-                                            S/ {{ number_format($prod->price, 2) }}
-                                        </span>
+                                <div class="pt-2 sm:pt-3 border-t border-slate-100 flex flex-col gap-2">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <span class="text-[9px] sm:text-[10px] uppercase tracking-wider font-bold text-slate-400 block leading-none">Precio</span>
+                                            <span class="text-sm sm:text-lg font-extrabold text-blue-600 block">
+                                                S/ {{ number_format($prod->price, 2) }}
+                                            </span>
+                                        </div>
+                                        <a href="{{ route('catalog.show', $prod->slug) }}" class="text-[11px] font-bold text-slate-500 hover:text-blue-600 flex items-center gap-0.5">
+                                            <span>Detalles</span>
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                            </svg>
+                                        </a>
                                     </div>
 
-                                    <a href="{{ route('catalog.show', $prod->slug) }}"
-                                       class="w-full sm:w-auto px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg sm:rounded-xl bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-700 text-[11px] sm:text-xs font-bold transition flex items-center justify-center gap-1">
-                                        <span>Ver</span>
-                                        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    <button type="button"
+                                            onclick="addToCart({{ $prod->id }}, '{{ addslashes($prod->name) }}', {{ $prod->price }}, '{{ $prod->image ? asset('storage/' . $prod->image) : '' }}', 1)"
+                                            class="w-full py-1.5 sm:py-2 px-3 rounded-lg sm:rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                         </svg>
-                                    </a>
+                                        <span>Agregar al Carrito</span>
+                                    </button>
                                 </div>
-                            </div>
                         </div>
                     @endforeach
                 </div>
