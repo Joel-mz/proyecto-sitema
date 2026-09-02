@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-50">
+<html lang="es" class="h-full bg-slate-50 scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>@yield('title', 'Catálogo Virtual de Productos') - {{ $company->name ?? 'Catálogo' }}</title>
     <meta name="description" content="@yield('meta_description', $company->description ?? 'Descubre nuestro catálogo virtual con los mejores productos y precios actualizados.')">
 
@@ -35,28 +35,30 @@
         }
     </script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="min-h-full flex flex-col antialiased text-slate-800 bg-slate-50 selection:bg-blue-600 selection:text-white">
+<body class="min-h-full flex flex-col antialiased text-slate-800 bg-slate-50 selection:bg-blue-600 selection:text-white pb-16 sm:pb-0">
 
     <!-- Top Contact & Location Announcement Strip -->
     @if(isset($company))
-        <div class="bg-slate-900 text-slate-300 text-xs py-2 px-4 border-b border-slate-800">
-            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-                <div class="flex items-center gap-4 flex-wrap">
-                    @if($company->address || $company->city_province || $company->region)
+        <div class="bg-slate-900 text-slate-300 text-[11px] sm:text-xs py-1.5 sm:py-2 px-3 sm:px-4 border-b border-slate-800">
+            <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 overflow-x-auto no-scrollbar whitespace-nowrap">
+                <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+                    @if($company->address || $company->city_province)
                         <div class="flex items-center gap-1.5 text-slate-400">
                             <svg class="w-3.5 h-3.5 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
-                            <span>{{ $company->address }}{{ $company->city_province ? ', ' . $company->city_province : '' }}{{ $company->region ? ' - ' . $company->region : '' }}</span>
+                            <span>{{ $company->address ?? $company->city_province }}</span>
                         </div>
                     @endif
 
                     @if($company->phone)
-                        <div class="hidden sm:flex items-center gap-1.5 text-slate-400">
+                        <div class="flex items-center gap-1.5 text-slate-400">
                             <svg class="w-3.5 h-3.5 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                             </svg>
@@ -66,8 +68,8 @@
                 </div>
 
                 @if($company->whatsapp)
-                    <div class="flex items-center gap-2">
-                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $company->whatsapp) }}" target="_blank" class="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-semibold transition">
+                    <div class="flex items-center gap-2 flex-shrink-0 pl-2">
+                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $company->whatsapp) }}" target="_blank" class="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-bold transition">
                             <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
                                 <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.766-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
                             </svg>
@@ -80,22 +82,22 @@
     @endif
 
     <!-- Top Navigation -->
-    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20 gap-4">
+            <div class="flex items-center justify-between h-16 sm:h-20 gap-3">
                 <!-- Logo & Business Name -->
-                <a href="{{ route('catalog.index') }}" class="flex items-center gap-3 flex-shrink-0 group">
+                <a href="{{ route('catalog.index') }}" class="flex items-center gap-2.5 sm:gap-3 flex-shrink-0 group">
                     @if(isset($company) && $company->logo && file_exists(public_path('storage/' . $company->logo)))
-                        <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name }}" class="h-12 max-w-[180px] object-contain group-hover:scale-105 transition transform">
+                        <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name }}" class="h-9 sm:h-12 max-w-[130px] sm:max-w-[180px] object-contain group-hover:scale-105 transition transform">
                     @else
-                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-extrabold text-2xl shadow-lg shadow-blue-500/25 group-hover:scale-105 transition transform flex-shrink-0">
+                        <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-extrabold text-lg sm:text-2xl shadow-md shadow-blue-500/25 flex-shrink-0">
                             {{ strtoupper(substr($company->name ?? 'C', 0, 1)) }}
                         </div>
                         <div>
-                            <span class="text-xl font-extrabold text-slate-900 tracking-tight block leading-tight">
+                            <span class="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight block leading-tight truncate max-w-[140px] sm:max-w-none">
                                 {{ $company->name ?? 'TECHSTORE' }}
                             </span>
-                            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-widest block">
+                            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-widest block">
                                 Catálogo Virtual
                             </span>
                         </div>
@@ -116,22 +118,13 @@
                 </nav>
 
                 <!-- Action Button: Download PDF & Admin Link -->
-                <div class="flex items-center gap-3">
-                    @if(isset($company) && $company->whatsapp)
-                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $company->whatsapp) }}" target="_blank"
-                           class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl border border-emerald-200 transition">
-                            <svg class="w-4 h-4 fill-current text-emerald-600" viewBox="0 0 24 24">
-                                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.766-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
-                            </svg>
-                            <span>Consultar</span>
-                        </a>
-                    @endif
-
-                    <a href="{{ route('catalog.pdf') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md shadow-rose-600/20 transition transform hover:-translate-y-0.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <a href="{{ route('catalog.pdf') }}" class="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition">
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
-                        <span>Descargar PDF</span>
+                        <span class="hidden xs:inline">PDF</span>
+                        <span class="hidden sm:inline">Catálogo</span>
                     </a>
 
                     @auth
@@ -145,8 +138,43 @@
                             </svg>
                         </a>
                     @endauth
+
+                    <!-- Mobile Menu Button -->
+                    <button type="button" onclick="toggleMobileMenu()" class="p-2 md:hidden text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition" aria-label="Menú">
+                        <svg id="menu-icon-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                        <svg id="menu-icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
+        </div>
+
+        <!-- Mobile Drawer / Dropdown -->
+        <div id="mobile-nav" class="hidden md:hidden border-t border-slate-100 bg-white/95 backdrop-blur-md px-4 py-4 space-y-2 shadow-lg">
+            <a href="{{ route('catalog.index') }}" onclick="toggleMobileMenu()" class="block px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-blue-50 hover:text-blue-600 transition">
+                🏠 Inicio
+            </a>
+            <a href="{{ route('catalog.index') }}#categorias" onclick="toggleMobileMenu()" class="block px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-blue-50 hover:text-blue-600 transition">
+                📂 Categorías
+            </a>
+            <a href="{{ route('catalog.index') }}#productos" onclick="toggleMobileMenu()" class="block px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-blue-50 hover:text-blue-600 transition">
+                💻 Todos los Productos
+            </a>
+            <a href="{{ route('catalog.pdf') }}" class="block px-3.5 py-2.5 rounded-xl text-sm font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 transition">
+                📄 Descargar Catálogo PDF
+            </a>
+            @auth
+                <a href="{{ route('admin.dashboard') }}" class="block px-3.5 py-2.5 rounded-xl text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 transition">
+                    ⚙️ Panel de Administración
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="block px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+                    🔐 Iniciar Sesión (Admin)
+                </a>
+            @endauth
         </div>
     </header>
 
@@ -155,12 +183,24 @@
         @yield('content')
     </main>
 
+    <!-- Floating WhatsApp Button for Mobile -->
+    @if(isset($company) && $company->whatsapp)
+        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $company->whatsapp) }}" target="_blank"
+           class="fixed bottom-5 right-5 z-50 flex items-center gap-2 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-2xl shadow-emerald-500/50 hover:scale-105 transition transform active:scale-95"
+           title="Consultar por WhatsApp">
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.766-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
+            </svg>
+            <span class="text-xs font-bold hidden xs:inline">WhatsApp</span>
+        </a>
+    @endif
+
     <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 mt-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 mt-16 sm:mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
                 <!-- Col 1: Brand -->
-                <div class="space-y-4 md:col-span-1">
+                <div class="space-y-4 sm:col-span-2 md:col-span-1">
                     <div class="flex items-center gap-3">
                         @if(isset($company) && $company->logo && file_exists(public_path('storage/' . $company->logo)))
                             <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name }}" class="h-10 max-w-[150px] object-contain bg-white/10 p-1.5 rounded-xl">
@@ -246,12 +286,23 @@
                 </div>
             </div>
 
-            <div class="mt-12 pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
+            <div class="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
                 <p>&copy; {{ date('Y') }} {{ $company->name ?? 'TechStore' }}. Todos los derechos reservados.</p>
                 <p class="mt-1">Precios expresados en Soles Peruanos (S/) sujetos a cambios sin previo aviso.</p>
             </div>
         </div>
     </footer>
 
+    <script>
+        function toggleMobileMenu() {
+            const nav = document.getElementById('mobile-nav');
+            const openIcon = document.getElementById('menu-icon-open');
+            const closeIcon = document.getElementById('menu-icon-close');
+            
+            nav.classList.toggle('hidden');
+            openIcon.classList.toggle('hidden');
+            closeIcon.classList.toggle('hidden');
+        }
+    </script>
 </body>
 </html>

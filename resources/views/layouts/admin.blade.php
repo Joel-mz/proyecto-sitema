@@ -2,7 +2,7 @@
 <html lang="es" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>@yield('title', 'Panel de Administración') - {{ $company->name ?? 'Catálogo Virtual' }}</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,16 +40,21 @@
         }
     </script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="h-full flex flex-col antialiased text-slate-800">
+<body class="h-full flex flex-col antialiased text-slate-800 bg-slate-50">
 
-    <div class="min-h-full flex flex-col md:flex-row">
-        <!-- Sidebar -->
-        <aside class="w-full md:w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col border-r border-slate-800">
+    <div class="min-h-full flex flex-col md:flex-row relative">
+        <!-- Mobile Sidebar Backdrop Overlay -->
+        <div id="admin-backdrop" onclick="toggleAdminSidebar()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40 hidden md:hidden transition-opacity"></div>
+
+        <!-- Sidebar (Slide-over drawer on mobile, static on desktop) -->
+        <aside id="admin-sidebar" class="fixed md:static inset-y-0 left-0 z-50 w-72 md:w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col border-r border-slate-800 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
             <!-- Sidebar Header -->
-            <div class="h-20 flex items-center px-6 bg-slate-950/40 border-b border-slate-800">
+            <div class="h-16 sm:h-20 flex items-center justify-between px-6 bg-slate-950/40 border-b border-slate-800">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 font-bold text-white text-base tracking-tight truncate">
                     @if(isset($company) && $company->logo && file_exists(public_path('storage/' . $company->logo)))
                         <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name }}" class="h-9 max-w-[120px] object-contain rounded-lg bg-white/10 p-1">
@@ -63,6 +68,13 @@
                         <span class="text-[10px] text-blue-400 font-semibold tracking-wider uppercase block">Administración</span>
                     </div>
                 </a>
+
+                <!-- Close button for mobile -->
+                <button type="button" onclick="toggleAdminSidebar()" class="md:hidden p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
             </div>
 
             <!-- Sidebar Nav -->
@@ -168,37 +180,47 @@
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
             <!-- Top Header -->
-            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-10">
-                <h1 class="text-xl font-bold text-slate-800">
-                    @yield('header_title', 'Panel de Control')
-                </h1>
+            <header class="h-16 sm:h-20 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 z-10">
                 <div class="flex items-center gap-3">
-                    <a href="{{ route('products.create') }}" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+                    <!-- Hamburger Menu Button on Mobile -->
+                    <button type="button" onclick="toggleAdminSidebar()" class="md:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                    <h1 class="text-base sm:text-xl font-bold text-slate-800 truncate">
+                        @yield('header_title', 'Panel de Control')
+                    </h1>
+                </div>
+
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <a href="{{ route('products.create') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl shadow-sm transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
-                        <span>Nuevo Producto</span>
+                        <span class="hidden xs:inline">Nuevo</span>
+                        <span>Producto</span>
                     </a>
                 </div>
             </header>
 
             <!-- Page Body -->
-            <main class="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-50">
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50">
                 <!-- Flash Messages -->
                 @if(session('success'))
-                    <div class="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
+                    <div class="mb-4 sm:mb-6 p-3.5 sm:p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between">
+                        <div class="flex items-center gap-2.5 sm:gap-3">
                             <svg class="w-5 h-5 text-emerald-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
-                            <span class="text-sm font-medium">{{ session('success') }}</span>
+                            <span class="text-xs sm:text-sm font-medium">{{ session('success') }}</span>
                         </div>
                     </div>
                 @endif
 
                 @if($errors->any())
-                    <div class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800">
-                        <div class="flex items-center gap-2 mb-2 font-semibold text-sm">
+                    <div class="mb-4 sm:mb-6 p-3.5 sm:p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800">
+                        <div class="flex items-center gap-2 mb-2 font-semibold text-xs sm:text-sm">
                             <svg class="w-5 h-5 text-rose-600" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                             </svg>
@@ -216,6 +238,16 @@
             </main>
         </div>
     </div>
+
+    <script>
+        function toggleAdminSidebar() {
+            const sidebar = document.getElementById('admin-sidebar');
+            const backdrop = document.getElementById('admin-backdrop');
+
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+    </script>
 
     @stack('scripts')
 </body>
