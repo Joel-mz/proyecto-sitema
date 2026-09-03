@@ -10,6 +10,12 @@
     <div class="flex items-center gap-2 text-xs font-semibold text-slate-500">
         <a href="{{ route('catalog.index') }}" class="hover:text-blue-600 transition">Inicio</a>
         <span>/</span>
+        @if($product->category?->parent)
+            <a href="{{ route('catalog.category', $product->category->parent->slug) }}" class="hover:text-blue-600 transition">
+                {{ $product->category->parent->name }}
+            </a>
+            <span>/</span>
+        @endif
         <a href="{{ route('catalog.category', $product->category->slug) }}" class="hover:text-blue-600 transition">
             {{ $product->category->name }}
         </a>

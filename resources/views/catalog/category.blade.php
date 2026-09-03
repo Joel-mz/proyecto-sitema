@@ -10,22 +10,42 @@
     <div class="flex items-center gap-2 text-xs font-semibold text-slate-500">
         <a href="{{ route('catalog.index') }}" class="hover:text-blue-600 transition">Inicio</a>
         <span>/</span>
+        @if($category->parent)
+            <a href="{{ route('catalog.category', $category->parent->slug) }}" class="hover:text-blue-600 transition">
+                {{ $category->parent->name }}
+            </a>
+            <span>/</span>
+        @endif
         <span class="text-slate-800">{{ $category->name }}</span>
     </div>
 
     <!-- Category Header Card -->
-    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{{ $category->name }}</h1>
-            <p class="text-xs text-slate-500 mt-1">
-                {{ $category->description ?: 'Explora todos los modelos y accesorios disponibles en esta categoría.' }}
-            </p>
+    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 sm:p-8 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{{ $category->name }}</h1>
+                <p class="text-xs text-slate-500 mt-1">
+                    {{ $category->description ?: 'Explora todos los modelos y accesorios disponibles en esta categoría.' }}
+                </p>
+            </div>
+            <div>
+                <span class="inline-block px-3.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 font-bold text-xs border border-blue-200">
+                    {{ $products->total() }} productos
+                </span>
+            </div>
         </div>
-        <div>
-            <span class="inline-block px-3.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 font-bold text-xs border border-blue-200">
-                {{ $products->total() }} productos
-            </span>
-        </div>
+
+        @if($category->subcategories->isNotEmpty())
+            <!-- Subcategories Filter Chips -->
+            <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
+                <span class="text-xs font-bold text-slate-400 mr-1">Subcategorías:</span>
+                @foreach($category->subcategories as $sub)
+                    <a href="{{ route('catalog.category', $sub->slug) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 text-xs font-bold transition">
+                        <span>↳ {{ $sub->name }}</span>
+                    </a>
+                @endforeach
+            </div>
+        @endif
     </div>
 
     <!-- Products Grid (Exact TecnoStore Card Grid) -->

@@ -14,19 +14,25 @@ class CategoryController extends Controller
 {
     public function index(): View
     {
-        $categories = Category::withCount('products')->latest()->paginate(10);
+        $categories = Category::with(['parent', 'subcategories'])
+            ->withCount('products')
+            ->orderByRaw('COALESCE(parent_id, id), parent_id IS NOT NULL, name')
+            ->paginate(15);
 
         return view('admin.categories.index', compact('categories'));
     }
 
     public function create(): View
     {
-        return view('admin.categories.create');
+        $parentCategories = Category::whereNull('parent_id')->orderBy('name')->get();
+
+        return view('admin.categories.create', compact('parentCategories'));
     }
 
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
+            'parent_id' => ['nullable', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:255', 'unique:categories,name'],
             'description' => ['nullable', 'string', 'max:1000'],
         ]);
@@ -42,17 +48,22 @@ class CategoryController extends Controller
 
         Category::create($validated);
 
-        return redirect()->route('categories.index')->with('success', 'Categoría creada exitosamente.');
+        $msg = ! empty($validated['parent_id']) ? 'Subcategoría creada exitosamente.' : 'Categoría creada exitosamente.';
+
+        return redirect()->route('categories.index')->with('success', $msg);
     }
 
     public function edit(Category $category): View
     {
-        return view('admin.categories.edit', compact('category'));
+        $parentCategories = Category::whereNull('parent_id')->where('id', '!=', $category->id)->orderBy('name')->get();
+
+        return view('admin.categories.edit', compact('category', 'parentCategories'));
     }
 
     public function update(Request $request, Category $category): RedirectResponse
     {
         $validated = $request->validate([
+            'parent_id' => ['nullable', 'exists:categories,id', Rule::notIn([$category->id])],
             'name' => ['required', 'string', 'max:255', Rule::unique('categories', 'name')->ignore($category->id)],
             'description' => ['nullable', 'string', 'max:1000'],
         ]);
@@ -68,7 +79,9 @@ class CategoryController extends Controller
 
         $category->update($validated);
 
-        return redirect()->route('categories.index')->with('success', 'Categoría actualizada exitosamente.');
+        $msg = ! empty($validated['parent_id']) ? 'Subcategoría actualizada exitosamente.' : 'Categoría actualizada exitosamente.';
+
+        return redirect()->route('categories.index')->with('success', $msg);
     }
 
     public function destroy(Category $category): RedirectResponse

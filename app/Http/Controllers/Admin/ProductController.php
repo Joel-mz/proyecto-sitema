@@ -33,14 +33,16 @@ class ProductController extends Controller
         $products = $query->paginate(10)->withQueryString();
         $categories = Category::orderBy('name')->get();
 
+        $categories = Category::with('subcategories')->whereNull('parent_id')->orderBy('name')->get();
+
         return view('admin.products.index', compact('products', 'categories'));
     }
 
     public function create(): View
     {
-        $categories = Category::orderBy('name')->get();
+        $parentCategories = Category::with('subcategories')->whereNull('parent_id')->orderBy('name')->get();
 
-        return view('admin.products.create', compact('categories'));
+        return view('admin.products.create', compact('parentCategories'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -83,9 +85,9 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
-        $categories = Category::orderBy('name')->get();
+        $parentCategories = Category::with('subcategories')->whereNull('parent_id')->orderBy('name')->get();
 
-        return view('admin.products.edit', compact('product', 'categories'));
+        return view('admin.products.edit', compact('product', 'parentCategories'));
     }
 
     public function update(Request $request, Product $product): RedirectResponse

@@ -76,16 +76,21 @@
                         @enderror
                     </div>
 
-                    <!-- Categoría -->
+                    <!-- Categoría / Subcategoría -->
                     <div>
-                        <label for="category_id" class="block text-xs font-bold text-slate-700 mb-1">Categoría <span class="text-rose-500">*</span></label>
+                        <label for="category_id" class="block text-xs font-bold text-slate-700 mb-1">Categoría / Subcategoría <span class="text-rose-500">*</span></label>
                         <select name="category_id" id="category_id" required
-                            class="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
-                            <option value="">Selecciona una categoría</option>
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>
-                                    {{ $cat->name }}
+                            class="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white font-medium">
+                            <option value="">Selecciona una categoría o subcategoría</option>
+                            @foreach($parentCategories as $parent)
+                                <option value="{{ $parent->id }}" class="font-bold text-slate-900 bg-slate-50" {{ old('category_id') == $parent->id ? 'selected' : '' }}>
+                                    📁 {{ $parent->name }}
                                 </option>
+                                @foreach($parent->subcategories as $sub)
+                                    <option value="{{ $sub->id }}" class="text-slate-600" {{ old('category_id') == $sub->id ? 'selected' : '' }}>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;↳ {{ $sub->name }}
+                                    </option>
+                                @endforeach
                             @endforeach
                         </select>
                         @error('category_id')

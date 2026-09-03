@@ -29,9 +29,11 @@ class CatalogController extends Controller
 
         if ($request->filled('categoria')) {
             $categorySlug = $request->get('categoria');
-            $query->whereHas('category', function ($q) use ($categorySlug) {
-                $q->where('slug', $categorySlug);
-            });
+            $selectedCat = Category::with('subcategories')->where('slug', $categorySlug)->first();
+            if ($selectedCat) {
+                $categoryIds = $selectedCat->subcategories->pluck('id')->push($selectedCat->id);
+                $query->whereIn('category_id', $categoryIds);
+            }
         }
 
         $banners = collect();
@@ -46,13 +48,15 @@ class CatalogController extends Controller
 
     public function category(string $slug): View
     {
-        $category = Category::where('slug', $slug)->firstOrFail();
+        $category = Category::with(['subcategories', 'parent'])->where('slug', $slug)->firstOrFail();
         $categories = Category::withCount(['products' => function ($q) {
             $q->where('is_active', true);
         }])->get();
 
+        $categoryIds = $category->subcategories->pluck('id')->push($category->id);
+
         $products = Product::with('category')
-            ->where('category_id', $category->id)
+            ->whereIn('category_id', $categoryIds)
             ->where('is_active', true)
             ->latest()
             ->paginate(12);
