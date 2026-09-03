@@ -377,15 +377,22 @@
             <div class="flex items-center justify-between text-slate-900 font-bold text-base pt-1 border-t border-slate-200">
                 <span>Total a Pagar:</span>
                 <span id="cart-total" class="text-blue-600 font-black text-lg">S/ 0.00</span>
-            </div>
+            <!-- WhatsApp & PDF Checkout Buttons -->
+            <div class="space-y-2">
+                <button type="button" id="cart-submit-btn" onclick="submitWhatsAppOrder(true)" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl font-bold text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
+                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.768-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
+                    </svg>
+                    <span id="btn-submit-text">Enviar Pedido por WhatsApp</span>
+                </button>
 
-            <!-- WhatsApp Checkout Button -->
-            <button type="button" id="cart-submit-btn" onclick="submitWhatsAppOrder()" class="w-full py-3 px-4 bg-[#0052cc] hover:bg-blue-700 active:scale-98 text-white rounded-lg font-bold text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
-                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.768-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
-                </svg>
-                <span id="btn-submit-text">Enviar Pedido por WhatsApp</span>
-            </button>
+                <button type="button" onclick="submitWhatsAppOrder(false, true)" class="w-full py-2.5 px-4 bg-white hover:bg-slate-100 text-blue-700 border border-blue-200 active:scale-98 rounded-xl font-bold text-xs shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                    <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span>Descargar Ticket / Proforma en PDF</span>
+                </button>
+            </div>
 
             <div class="text-center pt-1">
                 <button type="button" onclick="clearCart()" class="text-[11px] text-slate-400 hover:text-rose-500 transition font-medium cursor-pointer">
@@ -661,7 +668,14 @@
             }
         }
 
-        async function submitWhatsAppOrder() {
+        function cleanText(str) {
+            if (!str) return '';
+            const txt = document.createElement('textarea');
+            txt.innerHTML = str;
+            return txt.value.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&#039;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        }
+
+        async function submitWhatsAppOrder(sendToWhatsApp = true, openPdfOnly = false) {
             if (cart.length === 0) {
                 alert('El carrito está vacío.');
                 return;
@@ -695,13 +709,15 @@
 
             const submitBtn = document.getElementById('cart-submit-btn');
             const submitText = document.getElementById('btn-submit-text');
-            const originalText = submitText.textContent;
+            const originalText = submitText ? submitText.textContent : 'Enviar Pedido por WhatsApp';
 
             const deliveryMode = document.querySelector('input[name="delivery_mode"]:checked')?.value || 'Recojo en Tienda Moyobamba 🏪';
             const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value || 'Yape 📱';
 
-            submitBtn.disabled = true;
-            submitText.textContent = 'Generando Pedido...';
+            if (submitBtn && submitText) {
+                submitBtn.disabled = true;
+                submitText.textContent = openPdfOnly ? 'Generando PDF...' : 'Generando Pedido...';
+            }
 
             let ticketUrl = '';
             let orderNumber = '';
@@ -719,7 +735,7 @@
                     notes: notes,
                     items: cart.map(item => ({
                         product_id: item.id,
-                        product_name: item.name,
+                        product_name: cleanText(item.name),
                         quantity: item.quantity,
                         unit_price: item.price
                     }))
@@ -744,9 +760,23 @@
                 console.warn('No se pudo guardar pedido en BD, continuando directo a WhatsApp:', e);
             }
 
-            submitBtn.disabled = false;
-            submitText.textContent = originalText;
+            if (submitBtn && submitText) {
+                submitBtn.disabled = false;
+                submitText.textContent = originalText;
+            }
 
+            // If user only wanted the PDF ticket
+            if (openPdfOnly) {
+                if (ticketUrl) {
+                    window.open(ticketUrl, '_blank');
+                    showToast('¡Ticket PDF descargado exitosamente!');
+                } else {
+                    alert('No se pudo generar el ticket PDF en este momento.');
+                }
+                return;
+            }
+
+            // WhatsApp Message Builder
             let msg = `🛒 *NUEVO PEDIDO DE COMPRA - ${COMPANY_NAME}*\n`;
             if (orderNumber) {
                 msg += `🔖 *N° Pedido:* ${orderNumber}\n`;
@@ -759,7 +789,7 @@
             if (address) msg += `🏠 *Dirección/Referencia:* ${address}\n`;
             msg += `💳 *Método de Pago:* ${selectedPayment}\n`;
             if (ticketUrl) {
-                msg += `📄 *Descargar Ticket PDF:* ${ticketUrl}\n`;
+                msg += `📄 *Ticket / Proforma PDF:* ${ticketUrl}\n`;
             }
             if (notes) msg += `📝 *Nota:* ${notes}\n`;
             msg += `━━━━━━━━━━━━━━━━━━━━\n`;
@@ -767,7 +797,8 @@
 
             cart.forEach((item, index) => {
                 const subtotal = item.price * item.quantity;
-                msg += `${index + 1}. *${item.name}*\n`;
+                const itemName = cleanText(item.name);
+                msg += `${index + 1}. *${itemName}*\n`;
                 msg += `   ▪ Cantidad: ${item.quantity} und.\n`;
                 msg += `   ▪ P. Unitario: S/ ${item.price.toFixed(2)}\n`;
                 msg += `   ▪ Subtotal: S/ ${subtotal.toFixed(2)}\n`;
@@ -782,7 +813,18 @@
             msg += `Quedo atento a la confirmación de stock y los datos para realizar el pago por *${selectedPayment}*. ¡Muchas gracias!`;
 
             const whatsappUrl = `https://api.whatsapp.com/send?phone=${COMPANY_WHATSAPP}&text=${encodeURIComponent(msg)}`;
-            window.location.href = whatsappUrl;
+            
+            // Open WhatsApp in new tab
+            window.open(whatsappUrl, '_blank');
+
+            // If ticket URL exists, also open/download PDF in background
+            if (ticketUrl) {
+                setTimeout(() => {
+                    window.open(ticketUrl, '_blank');
+                }, 400);
+            }
+
+            showToast('¡Pedido registrado! Abriendo WhatsApp y Ticket PDF...');
         }
 
         document.addEventListener('DOMContentLoaded', () => {

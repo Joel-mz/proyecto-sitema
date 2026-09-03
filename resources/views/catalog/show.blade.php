@@ -132,22 +132,23 @@
     function orderSingleWhatsApp() {
         const qty = parseInt(document.getElementById('detail-product-qty').value) || 1;
         const total = ({{ $product->price }} * qty).toFixed(2);
+        const prodName = {!! json_encode($product->name) !!};
         let msg = `👋 *CONSULTA DE PRODUCTO - ${COMPANY_NAME}*\n`;
         msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-        msg += `💻 *Producto:* {{ $product->name }}\n`;
+        msg += `💻 *Producto:* ${prodName}\n`;
         msg += `▪ Cantidad: ${qty} und.\n`;
         msg += `▪ Precio Unitario: S/ {{ number_format($product->price, 2) }}\n`;
         msg += `▪ Total: S/ ${total}\n`;
         @if($product->image_url)
-            msg += `▪ 🖼️ Foto: {{ $product->image_url }}\n`;
+            msg += `▪ 🖼️ Foto: {!! json_encode($product->image_url) !!}\n`;
         @else
             msg += `▪ 🔗 Enlace: {{ route('catalog.show', $product->slug) }}\n`;
         @endif
         msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-        msg += `Hola, deseo consultar la disponibilidad y comprar este producto por WhatsApp. ¡Gracias!`;
+        msg += `Hola, deseo consultar la disponibilidad y comprar este producto por WhatsApp. ¡Muchas gracias!`;
 
         const whatsappUrl = `https://api.whatsapp.com/send?phone=${COMPANY_WHATSAPP}&text=${encodeURIComponent(msg)}`;
-        window.location.href = whatsappUrl;
+        window.open(whatsappUrl, '_blank');
     }
 </script>
 @endsection
