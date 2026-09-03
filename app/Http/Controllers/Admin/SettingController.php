@@ -32,6 +32,10 @@ class SettingController extends Controller
             'region' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:1000'],
             'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:5120'],
+            'hero_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:10240'],
+            'hero_title' => ['nullable', 'string', 'max:255'],
+            'hero_subtitle' => ['nullable', 'string', 'max:500'],
+            'hero_badge' => ['nullable', 'string', 'max:255'],
         ]);
 
         if ($request->hasFile('logo')) {
@@ -47,6 +51,21 @@ class SettingController extends Controller
                 Storage::disk('public')->delete($setting->logo);
             }
             $validated['logo'] = null;
+        }
+
+        if ($request->hasFile('hero_image')) {
+            if ($setting->hero_image && Storage::disk('public')->exists($setting->hero_image)) {
+                Storage::disk('public')->delete($setting->hero_image);
+            }
+            $path = $request->file('hero_image')->store('banners', 'public');
+            $validated['hero_image'] = $path;
+        }
+
+        if ($request->has('remove_hero_image') && $request->boolean('remove_hero_image')) {
+            if ($setting->hero_image && Storage::disk('public')->exists($setting->hero_image)) {
+                Storage::disk('public')->delete($setting->hero_image);
+            }
+            $validated['hero_image'] = null;
         }
 
         $setting->update($validated);

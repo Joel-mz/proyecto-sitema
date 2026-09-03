@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Banner;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class CatalogController extends Controller
@@ -32,9 +34,14 @@ class CatalogController extends Controller
             });
         }
 
+        $banners = collect();
+        if (Schema::hasTable('banners')) {
+            $banners = Banner::where('is_active', true)->orderBy('order', 'asc')->orderBy('id', 'asc')->get();
+        }
+
         $products = $query->paginate(12)->withQueryString();
 
-        return view('catalog.index', compact('products', 'categories'));
+        return view('catalog.index', compact('products', 'categories', 'banners'));
     }
 
     public function category(string $slug): View

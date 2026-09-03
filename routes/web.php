@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
@@ -46,6 +47,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/products/bulk-delete', [ProductController::class, 'bulkDelete'])->name('products.bulkDelete');
     Route::post('/products/delete-all', [ProductController::class, 'deleteAll'])->name('products.deleteAll');
     Route::resource('products', ProductController::class)->except(['show']);
+
+    // Banners / Slider Management
+    Route::resource('banners', BannerController::class)->except(['show']);
 
     Route::get('/catalogo-pdf', [PdfController::class, 'download'])->name('admin.pdf');
 

@@ -6,75 +6,166 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-10 sm:space-y-14">
 
-    <!-- 1. HERO SLIDER BANNER (Exact TecnoStore Mockup Style) -->
-    <section class="relative bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden p-6 sm:p-10 lg:p-14">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+    <!-- 1. HERO SLIDER BANNER -->
+    @php
+        $hasBanners = isset($banners) && $banners->isNotEmpty();
+        $featuredProducts = $products->take(4);
+    @endphp
+    <section id="hero-banner-section" class="relative bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden p-6 sm:p-10 lg:p-14">
+        <!-- Slides Wrapper -->
+        <div id="hero-slider-track" class="relative min-h-[300px] sm:min-h-[330px] flex items-center">
             
-            <!-- Left Info Column -->
-            <div class="space-y-4 sm:space-y-6 text-left">
-                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                    Catálogo Virtual<br>
-                    <span class="text-blue-600">de Cómputo y Accesorios</span>
-                </h1>
-                
-                <p class="text-slate-500 text-sm sm:text-base max-w-md font-medium leading-relaxed">
-                    Los mejores productos con la mejor calidad y al mejor precio.
-                </p>
+            @if($hasBanners)
+                <!-- Admin Configured Banners -->
+                @foreach($banners as $index => $banner)
+                    <div class="hero-slide {{ $index === 0 ? '' : 'hidden' }} w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center transition-all duration-500">
+                        <!-- Left Info Column -->
+                        <div class="space-y-4 sm:space-y-6 text-left">
+                            @if(!empty($banner->badge))
+                                <span class="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-black rounded-full border border-blue-100 uppercase tracking-wider">
+                                    {{ $banner->badge }}
+                                </span>
+                            @endif
 
-                <div class="pt-2">
-                    <a href="#productos" class="inline-flex items-center gap-2.5 px-6 py-3.5 bg-[#0052cc] hover:bg-blue-600 text-white font-bold text-sm sm:text-base rounded-xl shadow-md transition transform active:scale-95">
-                        <span>Ver Productos</span>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                        </svg>
-                    </a>
-                </div>
-            </div>
+                            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                                {{ $banner->title ?: ($company->name ?? 'Catálogo Virtual') }}
+                            </h2>
+                            
+                            @if(!empty($banner->subtitle))
+                                <p class="text-slate-500 text-sm sm:text-base max-w-md font-medium leading-relaxed">
+                                    {{ $banner->subtitle }}
+                                </p>
+                            @endif
 
-            <!-- Right Hero Image (Laptop Mockup) -->
-            <div class="relative flex items-center justify-center p-4">
-                @php
-                    $featuredProd = $products->first();
-                @endphp
-                @if($featuredProd && $featuredProd->image)
-                    <img src="{{ asset('storage/' . $featuredProd->image) }}" alt="Producto Destacado"
-                         class="max-h-72 sm:max-h-84 w-auto object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500">
-                @else
-                    <!-- High Quality Laptop SVG Mockup -->
-                    <div class="w-full max-w-md aspect-4/3 bg-gradient-to-tr from-slate-900 to-blue-950 rounded-2xl p-4 shadow-2xl flex flex-col justify-between border-4 border-slate-700">
-                        <div class="w-full flex-1 bg-gradient-to-br from-blue-600 to-indigo-900 rounded-xl flex items-center justify-center text-white relative overflow-hidden">
-                            <div class="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] opacity-30 [background-size:12px_12px]"></div>
-                            <div class="text-center z-10 space-y-1">
-                                <span class="text-3xl">💻</span>
-                                <p class="text-xs font-black tracking-widest text-blue-200">TECLADOS • LAPTOPS • HARDWARE</p>
+                            <div class="pt-2">
+                                <a href="{{ $banner->button_link ?: '#productos' }}" class="inline-flex items-center gap-2.5 px-6 py-3.5 bg-[#0052cc] hover:bg-blue-600 text-white font-bold text-sm sm:text-base rounded-xl shadow-md transition transform active:scale-95">
+                                    <span>{{ $banner->button_text ?: 'Ver Productos' }}</span>
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                                    </svg>
+                                </a>
                             </div>
                         </div>
-                        <div class="w-32 h-2 bg-slate-600 rounded-full mx-auto mt-3"></div>
+
+                        <!-- Right Banner Image -->
+                        <div class="relative flex items-center justify-center p-4">
+                            @if($banner->image && file_exists(public_path('storage/' . $banner->image)))
+                                <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}"
+                                     class="max-h-72 sm:max-h-84 w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 rounded-2xl">
+                            @else
+                                <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}"
+                                     class="max-h-72 sm:max-h-84 w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 rounded-2xl">
+                            @endif
+                        </div>
                     </div>
-                @endif
-            </div>
+                @endforeach
+            @else
+                <!-- Fallback Slide 1: Main Custom / Default Banner -->
+                <div class="hero-slide w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center transition-all duration-500">
+                    <!-- Left Info Column -->
+                    <div class="space-y-4 sm:space-y-6 text-left">
+                        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                            @if(!empty($company?->hero_title))
+                                {{ $company->hero_title }}
+                            @else
+                                Catálogo Virtual<br>
+                                <span class="text-blue-600">de Cómputo y Accesorios</span>
+                            @endif
+                        </h1>
+                        
+                        <p class="text-slate-500 text-sm sm:text-base max-w-md font-medium leading-relaxed">
+                            {{ $company?->hero_subtitle ?: 'Los mejores productos con la mejor calidad y al mejor precio.' }}
+                        </p>
+
+                        <div class="pt-2">
+                            <a href="#productos" class="inline-flex items-center gap-2.5 px-6 py-3.5 bg-[#0052cc] hover:bg-blue-600 text-white font-bold text-sm sm:text-base rounded-xl shadow-md transition transform active:scale-95">
+                                <span>Ver Productos</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Right Hero Image -->
+                    <div class="relative flex items-center justify-center p-4">
+                        @if(!empty($company?->hero_image))
+                            <img src="{{ asset('storage/' . $company->hero_image) }}" alt="{{ $company->hero_title ?? 'Catálogo' }}"
+                                 class="max-h-72 sm:max-h-84 w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 rounded-2xl">
+                        @elseif($products->first() && $products->first()->image)
+                            <img src="{{ asset('storage/' . $products->first()->image) }}" alt="{{ $products->first()->name }}"
+                                 class="max-h-72 sm:max-h-84 w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 rounded-2xl">
+                        @else
+                            <!-- High Quality Laptop SVG Mockup -->
+                            <div class="w-full max-w-md aspect-4/3 bg-gradient-to-tr from-slate-900 to-blue-950 rounded-2xl p-4 shadow-2xl flex flex-col justify-between border-4 border-slate-700">
+                                <div class="w-full flex-1 bg-gradient-to-br from-blue-600 to-indigo-900 rounded-xl flex items-center justify-center text-white relative overflow-hidden">
+                                    <div class="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] opacity-30 [background-size:12px_12px]"></div>
+                                    <div class="text-center z-10 space-y-1">
+                                        <span class="text-3xl">💻</span>
+                                        <p class="text-xs font-black tracking-widest text-blue-200">{{ $company?->hero_badge ?: 'TECLADOS • LAPTOPS • HARDWARE' }}</p>
+                                    </div>
+                                </div>
+                                <div class="w-32 h-2 bg-slate-600 rounded-full mx-auto mt-3"></div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Fallback Slide 2..N: Top Featured Products -->
+                @foreach($featuredProducts->skip(!empty($company?->hero_image) ? 0 : 1)->take(3) as $fProd)
+                    <div class="hero-slide hidden w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center transition-all duration-500">
+                        <div class="space-y-4 sm:space-y-6 text-left">
+                            <span class="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-extrabold rounded-full border border-blue-100 uppercase tracking-wider">
+                                {{ $fProd->category?->name ?? 'Destacado' }}
+                            </span>
+                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                                {{ $fProd->name }}
+                            </h2>
+                            <p class="text-slate-500 text-sm sm:text-base max-w-md font-medium leading-relaxed line-clamp-2">
+                                {{ $fProd->description ?: 'Encuentra las mejores especificaciones y garantía al mejor precio.' }}
+                            </p>
+                            <div class="flex flex-wrap items-center gap-4 pt-2">
+                                <span class="text-2xl sm:text-3xl font-black text-blue-600">S/ {{ number_format($fProd->price, 2) }}</span>
+                                <a href="{{ route('catalog.show', $fProd->slug) }}" class="inline-flex items-center gap-2 px-5 py-3 bg-[#0052cc] hover:bg-blue-600 text-white font-bold text-sm rounded-xl shadow-md transition transform active:scale-95">
+                                    <span>Ver Detalle</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="relative flex items-center justify-center p-4">
+                            @if($fProd->image)
+                                <img src="{{ asset('storage/' . $fProd->image) }}" alt="{{ $fProd->name }}"
+                                     class="max-h-72 sm:max-h-84 w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 rounded-2xl">
+                            @else
+                                <div class="w-48 h-48 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+                                    <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            @endif
         </div>
 
         <!-- Slider Arrow Navigation Buttons (Left & Right) -->
-        <button type="button" class="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md items-center justify-center text-slate-600 hover:text-blue-600 hover:border-blue-300 transition" title="Anterior">
+        <button id="slider-btn-prev" type="button" class="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 border border-slate-200 shadow-md items-center justify-center text-slate-600 hover:text-blue-600 hover:border-blue-300 transition z-10" title="Anterior">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
             </svg>
         </button>
 
-        <button type="button" class="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md items-center justify-center text-slate-600 hover:text-blue-600 hover:border-blue-300 transition" title="Siguiente">
+        <button id="slider-btn-next" type="button" class="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 border border-slate-200 shadow-md items-center justify-center text-slate-600 hover:text-blue-600 hover:border-blue-300 transition z-10" title="Siguiente">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
             </svg>
         </button>
 
         <!-- Slider Pagination Dots -->
-        <div class="flex items-center justify-center gap-2 pt-6 sm:pt-4">
-            <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-            <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
-            <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
-            <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
-        </div>
+        <div id="slider-dots-container" class="flex items-center justify-center gap-2 pt-6 sm:pt-4"></div>
     </section>
 
     <!-- 2. CATEGORÍAS (Exact TecnoStore Mockup Style) -->
@@ -293,3 +384,98 @@
 
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const slides = document.querySelectorAll('.hero-slide');
+        const dotsContainer = document.getElementById('slider-dots-container');
+        const prevBtn = document.getElementById('slider-btn-prev');
+        const nextBtn = document.getElementById('slider-btn-next');
+        let currentSlide = 0;
+        let slideInterval = null;
+
+        if (slides.length <= 1) {
+            if (prevBtn) prevBtn.classList.add('hidden');
+            if (nextBtn) nextBtn.classList.add('hidden');
+            if (dotsContainer) dotsContainer.classList.add('hidden');
+            return;
+        }
+
+        // Generate dots
+        dotsContainer.innerHTML = '';
+        slides.forEach((_, idx) => {
+            const dot = document.createElement('button');
+            dot.type = 'button';
+            dot.className = `w-2.5 h-2.5 rounded-full transition-all duration-300 ${idx === 0 ? 'bg-blue-600 w-6' : 'bg-slate-300 hover:bg-slate-400'}`;
+            dot.setAttribute('aria-label', `Ir a diapositiva ${idx + 1}`);
+            dot.addEventListener('click', () => {
+                goToSlide(idx);
+                resetAutoPlay();
+            });
+            dotsContainer.appendChild(dot);
+        });
+
+        function updateDots() {
+            const dots = dotsContainer.querySelectorAll('button');
+            dots.forEach((dot, idx) => {
+                if (idx === currentSlide) {
+                    dot.className = 'w-6 h-2.5 rounded-full bg-blue-600 transition-all duration-300';
+                } else {
+                    dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-300 hover:bg-slate-400 transition-all duration-300';
+                }
+            });
+        }
+
+        function goToSlide(index) {
+            slides[currentSlide].classList.add('hidden');
+            slides[currentSlide].classList.remove('opacity-100');
+            
+            currentSlide = (index + slides.length) % slides.length;
+            
+            slides[currentSlide].classList.remove('hidden');
+            slides[currentSlide].classList.add('opacity-100');
+            updateDots();
+        }
+
+        function nextSlide() {
+            goToSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            goToSlide(currentSlide - 1);
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                nextSlide();
+                resetAutoPlay();
+            });
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                prevSlide();
+                resetAutoPlay();
+            });
+        }
+
+        function startAutoPlay() {
+            slideInterval = setInterval(nextSlide, 6000);
+        }
+
+        function resetAutoPlay() {
+            clearInterval(slideInterval);
+            startAutoPlay();
+        }
+
+        const bannerSection = document.getElementById('hero-banner-section');
+        if (bannerSection) {
+            bannerSection.addEventListener('mouseenter', () => clearInterval(slideInterval));
+            bannerSection.addEventListener('mouseleave', () => startAutoPlay());
+        }
+
+        startAutoPlay();
+    });
+</script>
+@endpush
