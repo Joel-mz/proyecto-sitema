@@ -154,9 +154,9 @@
     <div class="header">
         <table class="header-table">
             <tr>
-                @if(isset($company) && $company->logo && file_exists(public_path('storage/' . $company->logo)))
+                @if(isset($companyLogoBase64) && $companyLogoBase64)
                     <td class="company-logo-cell">
-                        <img src="{{ public_path('storage/' . $company->logo) }}" class="company-logo" alt="{{ $company->name }}">
+                        <img src="{{ $companyLogoBase64 }}" class="company-logo" alt="{{ $company->name }}">
                     </td>
                 @endif
                 <td>
@@ -197,10 +197,8 @@
                     @foreach($cat->products as $prod)
                         <tr class="product-row">
                             <td class="product-image-cell">
-                                @if($prod->image && str_starts_with($prod->image, 'http'))
-                                    <img src="{{ $prod->image }}" class="product-image" alt="{{ $prod->name }}">
-                                @elseif($prod->image && file_exists(public_path('storage/' . $prod->image)))
-                                    <img src="{{ public_path('storage/' . $prod->image) }}" class="product-image" alt="{{ $prod->name }}">
+                                @if(!empty($prod->pdf_image_base64))
+                                    <img src="{{ $prod->pdf_image_base64 }}" class="product-image" alt="{{ $prod->name }}">
                                 @else
                                     <div class="no-image">Sin foto</div>
                                 @endif
