@@ -9,7 +9,6 @@
     <!-- 1. HERO SLIDER BANNER -->
     @php
         $hasBanners = isset($banners) && $banners->isNotEmpty();
-        $featuredProductsWithImages = $products->filter(fn($p) => !empty($p->image))->take(3);
     @endphp
     <section id="hero-banner-section" class="relative bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden p-6 sm:p-10 lg:p-14">
         <!-- Slides Wrapper -->
@@ -60,7 +59,7 @@
                     </div>
                 @endforeach
             @else
-                <!-- Fallback Slide 1: Main Custom / Default Banner -->
+                <!-- Default Hero Slide (No extra product slides) -->
                 <div class="hero-slide w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center transition-all duration-500">
                     <!-- Left Info Column -->
                     <div class="space-y-4 sm:space-y-6 text-left">
@@ -92,9 +91,6 @@
                         @if(!empty($company?->hero_image))
                             <img src="{{ str_starts_with($company->hero_image, 'http') ? $company->hero_image : asset('storage/' . $company->hero_image) }}" alt="{{ $company->hero_title ?? 'Catálogo' }}"
                                  class="max-h-72 sm:max-h-84 w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 rounded-2xl">
-                        @elseif($products->firstWhere('image') && $products->firstWhere('image')->image_url)
-                            <img src="{{ $products->firstWhere('image')->image_url }}" alt="{{ $products->firstWhere('image')->name }}"
-                                 class="max-h-72 sm:max-h-84 w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 rounded-2xl">
                         @else
                             <!-- High Quality Laptop SVG Mockup -->
                             <div class="w-full max-w-md aspect-4/3 bg-gradient-to-tr from-slate-900 to-blue-950 rounded-2xl p-4 shadow-2xl flex flex-col justify-between border-4 border-slate-700">
@@ -110,38 +106,6 @@
                         @endif
                     </div>
                 </div>
-
-                <!-- Fallback Slide 2..N: ONLY products that have images -->
-                @foreach($featuredProductsWithImages as $fProd)
-                    <div class="hero-slide hidden w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center transition-all duration-500">
-                        <div class="space-y-4 sm:space-y-6 text-left">
-                            <span class="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-extrabold rounded-full border border-blue-100 uppercase tracking-wider">
-                                {{ $fProd->category?->name ?? 'Destacado' }}
-                            </span>
-                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-                                {{ $fProd->name }}
-                            </h2>
-                            <p class="text-slate-500 text-sm sm:text-base max-w-md font-medium leading-relaxed line-clamp-2">
-                                {{ $fProd->description ?: 'Encuentra las mejores especificaciones y garantía al mejor precio.' }}
-                            </p>
-                            <div class="flex flex-wrap items-center gap-4 pt-2">
-                                <span class="text-2xl sm:text-3xl font-black text-blue-600">S/ {{ number_format($fProd->price, 2) }}</span>
-                                <a href="{{ route('catalog.show', $fProd->slug) }}" class="inline-flex items-center gap-2 px-5 py-3 bg-[#0052cc] hover:bg-blue-600 text-white font-bold text-sm rounded-xl shadow-md transition transform active:scale-95">
-                                    <span>Ver Detalle</span>
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                                    </svg>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="relative flex items-center justify-center p-4">
-                            @if($fProd->image_url)
-                                <img src="{{ $fProd->image_url }}" alt="{{ $fProd->name }}"
-                                     class="max-h-72 sm:max-h-84 w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 rounded-2xl">
-                            @endif
-                        </div>
-                    </div>
-                @endforeach
             @endif
         </div>
 
