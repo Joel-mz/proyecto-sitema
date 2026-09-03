@@ -9,7 +9,7 @@
     <!-- 1. HERO SLIDER BANNER -->
     @php
         $hasBanners = isset($banners) && $banners->isNotEmpty();
-        $featuredProducts = $products->take(4);
+        $featuredProductsWithImages = $products->filter(fn($p) => !empty($p->image))->take(3);
     @endphp
     <section id="hero-banner-section" class="relative bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden p-6 sm:p-10 lg:p-14">
         <!-- Slides Wrapper -->
@@ -49,11 +49,11 @@
 
                         <!-- Right Banner Image -->
                         <div class="relative flex items-center justify-center p-4">
-                            @if($banner->image && file_exists(public_path('storage/' . $banner->image)))
-                                <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}"
-                                     class="max-h-72 sm:max-h-84 w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 rounded-2xl">
-                            @else
-                                <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}"
+                            @php
+                                $bannerImg = !empty($banner->image) ? (str_starts_with($banner->image, 'http') ? $banner->image : asset('storage/' . $banner->image)) : null;
+                            @endphp
+                            @if($bannerImg)
+                                <img src="{{ $bannerImg }}" alt="{{ $banner->title }}"
                                      class="max-h-72 sm:max-h-84 w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 rounded-2xl">
                             @endif
                         </div>
@@ -90,10 +90,10 @@
                     <!-- Right Hero Image -->
                     <div class="relative flex items-center justify-center p-4">
                         @if(!empty($company?->hero_image))
-                            <img src="{{ asset('storage/' . $company->hero_image) }}" alt="{{ $company->hero_title ?? 'Catálogo' }}"
+                            <img src="{{ str_starts_with($company->hero_image, 'http') ? $company->hero_image : asset('storage/' . $company->hero_image) }}" alt="{{ $company->hero_title ?? 'Catálogo' }}"
                                  class="max-h-72 sm:max-h-84 w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 rounded-2xl">
-                        @elseif($products->first() && $products->first()->image)
-                            <img src="{{ asset('storage/' . $products->first()->image) }}" alt="{{ $products->first()->name }}"
+                        @elseif($products->firstWhere('image') && $products->firstWhere('image')->image_url)
+                            <img src="{{ $products->firstWhere('image')->image_url }}" alt="{{ $products->firstWhere('image')->name }}"
                                  class="max-h-72 sm:max-h-84 w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 rounded-2xl">
                         @else
                             <!-- High Quality Laptop SVG Mockup -->
@@ -111,8 +111,8 @@
                     </div>
                 </div>
 
-                <!-- Fallback Slide 2..N: Top Featured Products -->
-                @foreach($featuredProducts->skip(!empty($company?->hero_image) ? 0 : 1)->take(3) as $fProd)
+                <!-- Fallback Slide 2..N: ONLY products that have images -->
+                @foreach($featuredProductsWithImages as $fProd)
                     <div class="hero-slide hidden w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center transition-all duration-500">
                         <div class="space-y-4 sm:space-y-6 text-left">
                             <span class="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-extrabold rounded-full border border-blue-100 uppercase tracking-wider">
@@ -135,15 +135,9 @@
                             </div>
                         </div>
                         <div class="relative flex items-center justify-center p-4">
-                            @if($fProd->image)
-                                <img src="{{ asset('storage/' . $fProd->image) }}" alt="{{ $fProd->name }}"
+                            @if($fProd->image_url)
+                                <img src="{{ $fProd->image_url }}" alt="{{ $fProd->name }}"
                                      class="max-h-72 sm:max-h-84 w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500 rounded-2xl">
-                            @else
-                                <div class="w-48 h-48 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
-                                    <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                    </svg>
-                                </div>
                             @endif
                         </div>
                     </div>

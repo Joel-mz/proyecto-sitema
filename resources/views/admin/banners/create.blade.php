@@ -20,7 +20,7 @@
         <form action="{{ route('banners.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
-            <!-- Imagen del Banner (Obligatoria) -->
+            <!-- Imagen del Banner (Archivo o URL) -->
             <div>
                 <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
                     Imagen del Banner / Producto <span class="text-rose-500">*</span>
@@ -35,12 +35,22 @@
                         </div>
                         <img id="image-preview" src="#" alt="Vista previa" class="hidden max-w-full max-h-full object-contain">
                     </div>
-                    <div class="flex-1 text-center sm:text-left space-y-2">
-                        <input type="file" name="image" id="image" required accept="image/jpeg,image/png,image/jpg,image/webp,image/svg+xml" class="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition cursor-pointer">
-                        <p class="text-xs text-slate-500">Formatos recomendados: PNG con transparencia o JPG de alta calidad. Máximo 10MB.</p>
+                    <div class="flex-1 w-full space-y-3">
+                        <div>
+                            <span class="block text-xs font-bold text-slate-700 mb-1">Opción 1: Subir Archivo</span>
+                            <input type="file" name="image" id="image" accept="image/jpeg,image/png,image/jpg,image/webp,image/svg+xml" class="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition cursor-pointer">
+                        </div>
+                        <div class="pt-2 border-t border-blue-200/60">
+                            <span class="block text-xs font-bold text-slate-700 mb-1">Opción 2: O pegar URL de Imagen Externa</span>
+                            <input type="url" name="image_url" id="image_url" value="{{ old('image_url') }}" placeholder="https://ejemplo.com/banner-promocion.jpg"
+                                class="w-full px-3 py-1.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs">
+                        </div>
                     </div>
                 </div>
                 @error('image')
+                    <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+                @error('image_url')
                     <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
             </div>
@@ -154,19 +164,40 @@
 
 @push('scripts')
 <script>
-    document.getElementById('image').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const preview = document.getElementById('image-preview');
-                const placeholder = document.getElementById('image-placeholder');
-                preview.src = e.target.result;
+    const fileInput = document.getElementById('image');
+    const urlInput = document.getElementById('image_url');
+    const preview = document.getElementById('image-preview');
+    const placeholder = document.getElementById('image-placeholder');
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (urlInput) urlInput.value = '';
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    if (placeholder) placeholder.classList.add('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    if (urlInput) {
+        urlInput.addEventListener('input', function() {
+            const url = this.value.trim();
+            if (url) {
+                if (fileInput) fileInput.value = '';
+                preview.src = url;
                 preview.classList.remove('hidden');
                 if (placeholder) placeholder.classList.add('hidden');
+            } else if (!fileInput.files.length) {
+                preview.classList.add('hidden');
+                if (placeholder) placeholder.classList.remove('hidden');
             }
-            reader.readAsDataURL(file);
-        }
-    });
+        });
+    }
 </script>
 @endpush

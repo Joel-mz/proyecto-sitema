@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->text('subtitle')->nullable();
             $table->string('badge')->nullable();
-            $table->string('image');
+            $table->text('image');
             $table->string('button_text')->nullable()->default('Ver Productos');
             $table->string('button_link')->nullable()->default('#productos');
             $table->integer('order')->default(0);

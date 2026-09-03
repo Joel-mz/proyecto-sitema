@@ -33,20 +33,29 @@ class BannerController extends Controller
             'button_link' => ['nullable', 'string', 'max:255'],
             'order' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],
-            'image' => ['required', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:10240'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:10240'],
+            'image_url' => ['nullable', 'url', 'max:2048'],
         ], [
-            'image.required' => 'Debes seleccionar una imagen para el banner.',
             'image.image' => 'El archivo debe ser una imagen válida (JPG, PNG, WEBP, SVG).',
             'image.max' => 'La imagen no puede pesar más de 10MB.',
+            'image_url.url' => 'Debes ingresar un enlace URL válido para la imagen.',
         ]);
+
+        if (! $request->hasFile('image') && ! $request->filled('image_url')) {
+            return back()->withErrors(['image' => 'Debes seleccionar un archivo de imagen o ingresar un enlace URL.'])->withInput();
+        }
 
         $validated['is_active'] = $request->has('is_active');
         $validated['order'] = $request->input('order', 0) ?? 0;
         $validated['button_text'] = $request->input('button_text') ?: 'Ver Productos';
         $validated['button_link'] = $request->input('button_link') ?: '#productos';
 
-        $imagePath = $request->file('image')->store('banners', 'public');
-        $validated['image'] = $imagePath;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('banners', 'public');
+            $validated['image'] = $imagePath;
+        } elseif ($request->filled('image_url')) {
+            $validated['image'] = $request->input('image_url');
+        }
 
         Banner::create($validated);
 
@@ -69,9 +78,11 @@ class BannerController extends Controller
             'order' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:10240'],
+            'image_url' => ['nullable', 'url', 'max:2048'],
         ], [
             'image.image' => 'El archivo debe ser una imagen válida (JPG, PNG, WEBP, SVG).',
             'image.max' => 'La imagen no puede pesar más de 10MB.',
+            'image_url.url' => 'Debes ingresar un enlace URL válido para la imagen.',
         ]);
 
         $validated['is_active'] = $request->has('is_active');
@@ -80,11 +91,16 @@ class BannerController extends Controller
         $validated['button_link'] = $request->input('button_link') ?: '#productos';
 
         if ($request->hasFile('image')) {
-            if ($banner->image && Storage::disk('public')->exists($banner->image)) {
+            if ($banner->image && ! str_starts_with($banner->image, 'http') && Storage::disk('public')->exists($banner->image)) {
                 Storage::disk('public')->delete($banner->image);
             }
             $imagePath = $request->file('image')->store('banners', 'public');
             $validated['image'] = $imagePath;
+        } elseif ($request->filled('image_url')) {
+            if ($banner->image && ! str_starts_with($banner->image, 'http') && Storage::disk('public')->exists($banner->image)) {
+                Storage::disk('public')->delete($banner->image);
+            }
+            $validated['image'] = $request->input('image_url');
         }
 
         $banner->update($validated);
