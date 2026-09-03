@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -61,5 +62,11 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         // Company Settings
         Route::get('/settings', [SettingController::class, 'edit'])->name('admin.settings.edit');
         Route::put('/settings', [SettingController::class, 'update'])->name('admin.settings.update');
+
+        // Backup & Restore
+        Route::get('/backup', [BackupController::class, 'index'])->name('admin.backup.index');
+        Route::get('/backup/export', [BackupController::class, 'export'])->name('admin.backup.export');
+        Route::post('/backup/restore', [BackupController::class, 'restore'])->name('admin.backup.restore');
+        Route::post('/backup/reset', [BackupController::class, 'reset'])->name('admin.backup.reset');
     });
 });

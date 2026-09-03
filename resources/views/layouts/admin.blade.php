@@ -208,6 +208,12 @@
                         </svg>
                         <span>Usuarios y Roles</span>
                     </a>
+                    <a href="{{ route('admin.backup.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.backup.*') ? 'bg-[#0052cc] text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                        </svg>
+                        <span>Copias de Seguridad</span>
+                    </a>
                 </div>
             @endif
 
@@ -409,6 +415,17 @@
                         </a>
                         <div class="sidebar-tooltip hidden absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none border border-slate-700">
                             Usuarios y Roles
+                        </div>
+                    </div>
+                    <div class="group-nav relative">
+                        <a href="{{ route('admin.backup.index') }}" class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.backup.*') ? 'bg-[#0052cc] text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                            <svg class="w-5 h-5 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                            </svg>
+                            <span class="sidebar-text truncate">Copias de Seguridad</span>
+                        </a>
+                        <div class="sidebar-tooltip hidden absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none border border-slate-700">
+                            Copias de Seguridad
                         </div>
                     </div>
                 </div>
