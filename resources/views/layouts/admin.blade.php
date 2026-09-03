@@ -33,6 +33,24 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         
+        /* Completely hide scrollbars everywhere in sidebar/nav while allowing mouse wheel scrolling */
+        .sidebar-scroll,
+        aside,
+        nav,
+        .no-scrollbar {
+            -ms-overflow-style: none !important;  /* IE and Edge */
+            scrollbar-width: none !important;  /* Firefox */
+        }
+        .sidebar-scroll::-webkit-scrollbar,
+        aside::-webkit-scrollbar,
+        nav::-webkit-scrollbar,
+        .no-scrollbar::-webkit-scrollbar {
+            display: none !important;
+            width: 0px !important;
+            height: 0px !important;
+            background: transparent !important;
+        }
+
         /* Collapsed Sidebar Styles */
         .sidebar-collapsed {
             width: 4.75rem !important; /* 76px */
@@ -96,7 +114,7 @@
         </div>
 
         <!-- Mobile Navigation Links -->
-        <nav class="flex-1 p-4 space-y-2 overflow-y-auto text-xs font-semibold">
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto no-scrollbar text-xs font-semibold">
             
             <!-- Dashboard Link -->
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.dashboard') ? 'bg-[#0052cc] text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
@@ -249,7 +267,7 @@
         </div>
 
         <!-- Navigation Links -->
-        <nav class="flex-1 p-3 space-y-1.5 overflow-y-auto text-xs font-semibold overflow-x-hidden">
+        <nav class="flex-1 p-3 space-y-1.5 overflow-y-auto no-scrollbar text-xs font-semibold overflow-x-hidden">
             
             <!-- Dashboard Link -->
             <div class="group-nav relative">
