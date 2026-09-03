@@ -48,7 +48,7 @@
             </div>
         @else
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-xs">
+                <table class="w-full min-w-[650px] text-left border-collapse text-xs">
                     <thead>
                         <tr class="border-b border-slate-100 bg-slate-50/70 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                             <th class="py-3.5 px-4 text-center w-14">Orden</th>

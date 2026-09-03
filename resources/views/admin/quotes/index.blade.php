@@ -58,7 +58,7 @@
     <!-- Quotes Table -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-600">
+                <table class="w-full min-w-[700px] text-left text-xs text-slate-600">
                 <thead class="bg-slate-50 text-slate-700 font-bold uppercase text-[10px] border-b border-slate-200">
                     <tr>
                         <th class="py-3 px-4">N° Cotización</th>

@@ -55,8 +55,8 @@
     <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-4">
         <h2 class="text-sm sm:text-base font-bold text-slate-900">Productos recientes</h2>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
+        <div class="overflow-x-auto -mx-5 sm:mx-0 px-5 sm:px-0">
+            <table class="w-full min-w-[520px] text-left text-xs">
                 <thead class="bg-slate-50 text-slate-500 font-semibold border-y border-slate-200">
                     <tr>
                         <th class="py-3 px-4">Producto</th>

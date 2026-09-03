@@ -58,7 +58,7 @@
         <!-- Table Card -->
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full min-w-[650px] text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50/75 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                             <th class="py-3.5 px-4 w-12 text-center">
