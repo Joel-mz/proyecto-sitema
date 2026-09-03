@@ -178,180 +178,194 @@ class BackupController extends Controller
         ];
 
         try {
-            DB::transaction(function () use ($jsonData, &$stats) {
-                // 1. Restore Company Settings
-                if (! empty($jsonData['company_settings']) && Schema::hasTable('company_settings')) {
-                    foreach ($jsonData['company_settings'] as $settingData) {
-                        CompanySetting::updateOrCreate(
-                            ['id' => $settingData['id'] ?? 1],
-                            collect($settingData)->except(['id'])->toArray()
-                        );
-                    }
+            // Disable foreign key checks across all DB engines
+            $driver = DB::getDriverName();
+            if ($driver === 'mysql') {
+                DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            } elseif ($driver === 'sqlite') {
+                DB::statement('PRAGMA foreign_keys = OFF;');
+            } elseif ($driver === 'pgsql') {
+                DB::statement("SET session_replication_role = 'replica';");
+            }
+
+            // 1. Restore Company Settings
+            if (! empty($jsonData['company_settings']) && Schema::hasTable('company_settings')) {
+                foreach ($jsonData['company_settings'] as $settingData) {
+                    $settingId = $settingData['id'] ?? 1;
+                    $row = collect($settingData)->except(['id'])->toArray();
+                    DB::table('company_settings')->updateOrInsert(['id' => $settingId], $row);
+                }
+            }
+
+            // 2. Restore Categories (Pass 1: Insert all without parent_id to guarantee all IDs exist)
+            if (isset($jsonData['categories']) && is_array($jsonData['categories'])) {
+                foreach ($jsonData['categories'] as $cat) {
+                    DB::table('categories')->updateOrInsert(
+                        ['id' => $cat['id']],
+                        [
+                            'parent_id' => null,
+                            'name' => $cat['name'],
+                            'slug' => $cat['slug'],
+                            'description' => $cat['description'] ?? null,
+                            'created_at' => $cat['created_at'] ?? now(),
+                            'updated_at' => $cat['updated_at'] ?? now(),
+                        ]
+                    );
+                    $stats['categories']++;
                 }
 
-                // 2. Restore Categories (Root first, then Subcategories)
-                if (isset($jsonData['categories']) && is_array($jsonData['categories'])) {
-                    // Disable foreign key checks for clean restore
-                    if (DB::getDriverName() === 'mysql') {
-                        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-                    } elseif (DB::getDriverName() === 'sqlite') {
-                        DB::statement('PRAGMA foreign_keys = OFF;');
-                    }
-
-                    // Separate parent and children
-                    $parents = array_filter($jsonData['categories'], fn ($c) => empty($c['parent_id']));
-                    $children = array_filter($jsonData['categories'], fn ($c) => ! empty($c['parent_id']));
-
-                    foreach ($parents as $cat) {
-                        Category::updateOrCreate(
-                            ['id' => $cat['id']],
-                            [
-                                'parent_id' => null,
-                                'name' => $cat['name'],
-                                'slug' => $cat['slug'],
-                                'description' => $cat['description'] ?? null,
-                            ]
-                        );
-                        $stats['categories']++;
-                    }
-
-                    foreach ($children as $cat) {
-                        Category::updateOrCreate(
-                            ['id' => $cat['id']],
-                            [
-                                'parent_id' => $cat['parent_id'],
-                                'name' => $cat['name'],
-                                'slug' => $cat['slug'],
-                                'description' => $cat['description'] ?? null,
-                            ]
-                        );
-                        $stats['categories']++;
-                    }
-
-                    if (DB::getDriverName() === 'mysql') {
-                        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-                    } elseif (DB::getDriverName() === 'sqlite') {
-                        DB::statement('PRAGMA foreign_keys = ON;');
+                // Pass 2: Assign parent_id once all IDs exist
+                $allCategoryIds = DB::table('categories')->pluck('id')->toArray();
+                foreach ($jsonData['categories'] as $cat) {
+                    if (! empty($cat['parent_id']) && in_array($cat['parent_id'], $allCategoryIds)) {
+                        DB::table('categories')->where('id', $cat['id'])->update([
+                            'parent_id' => $cat['parent_id'],
+                        ]);
                     }
                 }
+            }
 
-                // 3. Restore Products
-                if (isset($jsonData['products']) && is_array($jsonData['products'])) {
-                    foreach ($jsonData['products'] as $prod) {
-                        Product::updateOrCreate(
-                            ['id' => $prod['id']],
-                            [
-                                'category_id' => $prod['category_id'] ?? null,
-                                'name' => $prod['name'],
-                                'slug' => $prod['slug'],
-                                'description' => $prod['description'] ?? null,
-                                'price' => $prod['price'] ?? 0,
-                                'stock' => $prod['stock'] ?? 0,
-                                'is_active' => $prod['is_active'] ?? true,
-                                'is_featured' => $prod['is_featured'] ?? false,
-                                'image' => $prod['image'] ?? null,
-                            ]
-                        );
-                        $stats['products']++;
-                    }
+            // 3. Restore Products
+            if (isset($jsonData['products']) && is_array($jsonData['products'])) {
+                $allCategoryIds = DB::table('categories')->pluck('id')->toArray();
+                foreach ($jsonData['products'] as $prod) {
+                    $catId = (! empty($prod['category_id']) && in_array($prod['category_id'], $allCategoryIds)) ? $prod['category_id'] : null;
+
+                    DB::table('products')->updateOrInsert(
+                        ['id' => $prod['id']],
+                        [
+                            'category_id' => $catId,
+                            'name' => $prod['name'],
+                            'slug' => $prod['slug'],
+                            'description' => $prod['description'] ?? null,
+                            'price' => $prod['price'] ?? 0,
+                            'min_price' => $prod['min_price'] ?? null,
+                            'stock' => $prod['stock'] ?? 0,
+                            'is_active' => (bool) ($prod['is_active'] ?? true),
+                            'is_featured' => (bool) ($prod['is_featured'] ?? false),
+                            'image' => $prod['image'] ?? null,
+                            'created_at' => $prod['created_at'] ?? now(),
+                            'updated_at' => $prod['updated_at'] ?? now(),
+                        ]
+                    );
+                    $stats['products']++;
                 }
+            }
 
-                // 4. Restore Banners
-                if (isset($jsonData['banners']) && is_array($jsonData['banners']) && Schema::hasTable('banners')) {
-                    foreach ($jsonData['banners'] as $b) {
-                        Banner::updateOrCreate(
-                            ['id' => $b['id']],
-                            [
-                                'title' => $b['title'] ?? null,
-                                'subtitle' => $b['subtitle'] ?? null,
-                                'image_url' => $b['image_url'],
-                                'button_text' => $b['button_text'] ?? null,
-                                'button_url' => $b['button_url'] ?? null,
-                                'order' => $b['order'] ?? 0,
-                                'is_active' => $b['is_active'] ?? true,
-                            ]
-                        );
-                        $stats['banners']++;
-                    }
+            // 4. Restore Banners
+            if (isset($jsonData['banners']) && is_array($jsonData['banners']) && Schema::hasTable('banners')) {
+                foreach ($jsonData['banners'] as $b) {
+                    DB::table('banners')->updateOrInsert(
+                        ['id' => $b['id']],
+                        [
+                            'title' => $b['title'] ?? null,
+                            'subtitle' => $b['subtitle'] ?? null,
+                            'image_url' => $b['image_url'],
+                            'button_text' => $b['button_text'] ?? null,
+                            'button_url' => $b['button_url'] ?? null,
+                            'order' => $b['order'] ?? 0,
+                            'is_active' => (bool) ($b['is_active'] ?? true),
+                            'created_at' => $b['created_at'] ?? now(),
+                            'updated_at' => $b['updated_at'] ?? now(),
+                        ]
+                    );
+                    $stats['banners']++;
                 }
+            }
 
-                // 5. Restore Quotes
-                if (isset($jsonData['quotes']) && is_array($jsonData['quotes']) && Schema::hasTable('quotes')) {
-                    foreach ($jsonData['quotes'] as $q) {
-                        $quote = Quote::updateOrCreate(
-                            ['id' => $q['id']],
-                            [
-                                'quote_number' => $q['quote_number'],
-                                'customer_name' => $q['customer_name'],
-                                'customer_document' => $q['customer_document'] ?? null,
-                                'customer_document_type' => $q['customer_document_type'] ?? 'DNI',
-                                'customer_phone' => $q['customer_phone'] ?? null,
-                                'customer_email' => $q['customer_email'] ?? null,
-                                'customer_address' => $q['customer_address'] ?? null,
-                                'valid_until' => $q['valid_until'] ?? null,
-                                'notes' => $q['notes'] ?? null,
-                                'status' => $q['status'] ?? 'emitida',
-                                'subtotal' => $q['subtotal'] ?? 0,
-                                'tax' => $q['tax'] ?? 0,
-                                'total' => $q['total'] ?? 0,
-                            ]
-                        );
+            // 5. Restore Quotes & Quote Items
+            if (isset($jsonData['quotes']) && is_array($jsonData['quotes']) && Schema::hasTable('quotes')) {
+                foreach ($jsonData['quotes'] as $q) {
+                    DB::table('quotes')->updateOrInsert(
+                        ['id' => $q['id']],
+                        [
+                            'quote_number' => $q['quote_number'],
+                            'customer_name' => $q['customer_name'],
+                            'customer_document' => $q['customer_document'] ?? null,
+                            'customer_document_type' => $q['customer_document_type'] ?? 'DNI',
+                            'customer_phone' => $q['customer_phone'] ?? null,
+                            'customer_email' => $q['customer_email'] ?? null,
+                            'customer_address' => $q['customer_address'] ?? null,
+                            'valid_until' => $q['valid_until'] ?? null,
+                            'notes' => $q['notes'] ?? null,
+                            'status' => $q['status'] ?? 'emitida',
+                            'subtotal' => $q['subtotal'] ?? 0,
+                            'tax' => $q['tax'] ?? 0,
+                            'total' => $q['total'] ?? 0,
+                            'created_at' => $q['created_at'] ?? now(),
+                            'updated_at' => $q['updated_at'] ?? now(),
+                        ]
+                    );
 
-                        if (! empty($q['items'])) {
-                            QuoteItem::where('quote_id', $quote->id)->delete();
-                            foreach ($q['items'] as $item) {
-                                QuoteItem::create([
-                                    'quote_id' => $quote->id,
-                                    'product_id' => $item['product_id'] ?? null,
-                                    'product_name' => $item['product_name'],
-                                    'quantity' => $item['quantity'],
-                                    'unit_price' => $item['unit_price'],
-                                    'subtotal' => $item['subtotal'],
-                                ]);
-                            }
+                    if (! empty($q['items']) && Schema::hasTable('quote_items')) {
+                        DB::table('quote_items')->where('quote_id', $q['id'])->delete();
+                        foreach ($q['items'] as $item) {
+                            DB::table('quote_items')->insert([
+                                'quote_id' => $q['id'],
+                                'product_id' => $item['product_id'] ?? null,
+                                'product_name' => $item['product_name'],
+                                'quantity' => $item['quantity'],
+                                'unit_price' => $item['unit_price'],
+                                'subtotal' => $item['subtotal'],
+                                'created_at' => $item['created_at'] ?? now(),
+                                'updated_at' => $item['updated_at'] ?? now(),
+                            ]);
                         }
-                        $stats['quotes']++;
                     }
+                    $stats['quotes']++;
                 }
+            }
 
-                // 6. Restore Orders
-                if (isset($jsonData['orders']) && is_array($jsonData['orders']) && Schema::hasTable('orders')) {
-                    foreach ($jsonData['orders'] as $o) {
-                        $order = Order::updateOrCreate(
-                            ['id' => $o['id']],
-                            [
-                                'order_number' => $o['order_number'],
-                                'customer_name' => $o['customer_name'],
-                                'customer_document' => $o['customer_document'] ?? null,
-                                'customer_document_type' => $o['customer_document_type'] ?? 'DNI',
-                                'customer_phone' => $o['customer_phone'] ?? null,
-                                'delivery_mode' => $o['delivery_mode'] ?? 'Recojo en Tienda',
-                                'delivery_address' => $o['delivery_address'] ?? null,
-                                'payment_method' => $o['payment_method'] ?? 'Yape',
-                                'notes' => $o['notes'] ?? null,
-                                'status' => $o['status'] ?? 'recibido',
-                                'subtotal' => $o['subtotal'] ?? 0,
-                                'total' => $o['total'] ?? 0,
-                            ]
-                        );
+            // 6. Restore Orders & Order Items
+            if (isset($jsonData['orders']) && is_array($jsonData['orders']) && Schema::hasTable('orders')) {
+                foreach ($jsonData['orders'] as $o) {
+                    DB::table('orders')->updateOrInsert(
+                        ['id' => $o['id']],
+                        [
+                            'order_number' => $o['order_number'],
+                            'customer_name' => $o['customer_name'],
+                            'customer_document' => $o['customer_document'] ?? null,
+                            'customer_document_type' => $o['customer_document_type'] ?? 'DNI',
+                            'customer_phone' => $o['customer_phone'] ?? null,
+                            'delivery_mode' => $o['delivery_mode'] ?? 'Recojo en Tienda',
+                            'delivery_address' => $o['delivery_address'] ?? null,
+                            'payment_method' => $o['payment_method'] ?? 'Yape',
+                            'notes' => $o['notes'] ?? null,
+                            'status' => $o['status'] ?? 'recibido',
+                            'subtotal' => $o['subtotal'] ?? 0,
+                            'total' => $o['total'] ?? 0,
+                            'created_at' => $o['created_at'] ?? now(),
+                            'updated_at' => $o['updated_at'] ?? now(),
+                        ]
+                    );
 
-                        if (! empty($o['items'])) {
-                            OrderItem::where('order_id', $order->id)->delete();
-                            foreach ($o['items'] as $item) {
-                                OrderItem::create([
-                                    'order_id' => $order->id,
-                                    'product_id' => $item['product_id'] ?? null,
-                                    'product_name' => $item['product_name'],
-                                    'quantity' => $item['quantity'],
-                                    'unit_price' => $item['unit_price'],
-                                    'subtotal' => $item['subtotal'],
-                                ]);
-                            }
+                    if (! empty($o['items']) && Schema::hasTable('order_items')) {
+                        DB::table('order_items')->where('order_id', $o['id'])->delete();
+                        foreach ($o['items'] as $item) {
+                            DB::table('order_items')->insert([
+                                'order_id' => $o['id'],
+                                'product_id' => $item['product_id'] ?? null,
+                                'product_name' => $item['product_name'],
+                                'quantity' => $item['quantity'],
+                                'unit_price' => $item['unit_price'],
+                                'subtotal' => $item['subtotal'],
+                                'created_at' => $item['created_at'] ?? now(),
+                                'updated_at' => $item['updated_at'] ?? now(),
+                            ]);
                         }
-                        $stats['orders']++;
                     }
+                    $stats['orders']++;
                 }
-            });
+            }
+
+            // Re-enable foreign key checks
+            if ($driver === 'mysql') {
+                DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            } elseif ($driver === 'sqlite') {
+                DB::statement('PRAGMA foreign_keys = ON;');
+            } elseif ($driver === 'pgsql') {
+                DB::statement("SET session_replication_role = 'origin';");
+            }
         } catch (\Throwable $e) {
             return redirect()->back()->with('error', 'Ocurrió un error al restaurar la base de datos: '.$e->getMessage());
         }
