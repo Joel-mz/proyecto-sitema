@@ -44,7 +44,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/categories/delete-all', [CategoryController::class, 'deleteAll'])->name('categories.deleteAll');
     Route::resource('categories', CategoryController::class)->except(['show']);
 
-    // Products Bulk Actions
+    // Products Bulk Actions, Import & Export
+    Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
+    Route::get('/products/template', [ProductController::class, 'downloadTemplate'])->name('products.template');
+    Route::get('/products/export', [ProductController::class, 'exportCsv'])->name('products.export');
     Route::post('/products/bulk-delete', [ProductController::class, 'bulkDelete'])->name('products.bulkDelete');
     Route::post('/products/delete-all', [ProductController::class, 'deleteAll'])->name('products.deleteAll');
     Route::resource('products', ProductController::class)->except(['show']);

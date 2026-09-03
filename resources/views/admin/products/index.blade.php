@@ -11,20 +11,38 @@
             <h2 class="text-lg font-bold text-slate-800">Listado de Productos</h2>
             <p class="text-xs text-slate-500 mt-0.5">Administra precios de venta, precios mínimos, descripciones, categorías e imágenes</p>
         </div>
-        <div class="flex items-center gap-2.5">
+        <div class="flex flex-wrap items-center gap-2">
+            <!-- Export Excel Button -->
+            <a href="{{ route('products.export') }}" title="Descargar todos los productos en Excel / CSV"
+               class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 shadow-xs transition">
+                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span>Exportar Excel</span>
+            </a>
+
+            <!-- Import Excel Button -->
+            <button type="button" onclick="openImportModal()"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                </svg>
+                <span>Importar Excel / CSV</span>
+            </button>
+
             @if($products->total() > 0)
                 <form action="{{ route('products.deleteAll') }}" method="POST" onsubmit="return confirm('⚠️ ¿ESTÁS SEGURO DE ELIMINAR TODOS LOS PRODUCTOS? Esta acción no se puede deshacer y borrará todo el inventario.');">
                     @csrf
-                    <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs sm:text-sm font-semibold rounded-xl border border-rose-200 transition">
+                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs sm:text-sm font-semibold rounded-xl border border-rose-200 transition">
                         <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
-                        <span>Eliminar Todo</span>
+                        <span class="hidden sm:inline">Eliminar Todo</span>
                     </button>
                 </form>
             @endif
 
-            <a href="{{ route('products.create') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition">
+            <a href="{{ route('products.create') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-sm transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -200,6 +218,95 @@
         @csrf
         @method('DELETE')
     </form>
+
+    <!-- Import Excel / CSV Modal -->
+    <div id="import-modal-backdrop" onclick="closeImportModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden transition-opacity"></div>
+
+    <div id="import-modal" class="fixed inset-0 z-50 hidden overflow-y-auto flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in duration-200">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Importar Productos en Masa</h3>
+                        <p class="text-xs text-slate-400">Sube un archivo de Excel (.xlsx) o CSV</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeImportModal()" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Download Template Banner -->
+            <div class="bg-blue-50/70 border border-blue-200/70 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="space-y-0.5">
+                    <span class="block text-xs font-bold text-blue-900">¿No tienes el formato exacto?</span>
+                    <span class="block text-[11px] text-blue-700">Descarga la plantilla con ejemplos listos para rellenar en Excel.</span>
+                </div>
+                <a href="{{ route('products.template') }}" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold whitespace-nowrap shadow-xs transition flex items-center justify-center gap-1.5 flex-shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    <span>Descargar Plantilla (.CSV)</span>
+                </a>
+            </div>
+
+            <!-- Import Form -->
+            <form action="{{ route('products.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4" onsubmit="return handleImportSubmit(event)">
+                @csrf
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-700">
+                        Selecciona tu archivo de Excel (.xlsx o .csv): <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-2xl p-5 text-center cursor-pointer transition bg-slate-50/50 relative">
+                        <input type="file" name="excel_file" id="excel_file" accept=".xlsx,.csv,.txt" required
+                               onchange="updateImportFileName(this)"
+                               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        <div class="space-y-1.5">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                </svg>
+                            </div>
+                            <span id="import-file-name" class="block text-xs font-bold text-slate-700">Haz clic aquí o arrastra tu archivo Excel</span>
+                            <span class="block text-[10px] text-slate-400">Formatos permitidos: .xlsx, .csv (Máx. 50 MB)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column Reference List -->
+                <div class="bg-slate-50 rounded-2xl p-3 border border-slate-100 text-[11px] text-slate-600 space-y-1">
+                    <span class="block font-bold text-slate-800">Columnas reconocidas automáticamente:</span>
+                    <p class="text-slate-500 leading-relaxed">
+                        • <strong class="text-slate-700">nombre</strong> (Requerido) | • <strong class="text-slate-700">categoria</strong> (Ej. <em>Computación</em> o <em>Computación > Laptops</em>) | • <strong class="text-slate-700">precio</strong> (Ej. <em>2499.00</em>) | • <strong class="text-slate-700">stock</strong> | • <strong class="text-slate-700">descripcion</strong> | • <strong class="text-slate-700">url_imagen</strong> | • <strong class="text-slate-700">destacado</strong> (SI/NO).
+                    </p>
+                    <p class="text-slate-400 text-[10px] pt-1">
+                        * Si el producto ya existe con el mismo nombre, se actualizarán su precio, stock y características automáticamente.
+                    </p>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="closeImportModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btn-submit-import" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5 cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                        </svg>
+                        <span id="btn-submit-import-text">Procesar e Importar</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -210,6 +317,39 @@
     const bulkActionsBar = document.getElementById('bulk-actions-bar');
     const selectedCountBadge = document.getElementById('selected-count-badge');
     const selectedCountText = document.getElementById('selected-count-text');
+
+    function openImportModal() {
+        document.getElementById('import-modal-backdrop').classList.remove('hidden');
+        document.getElementById('import-modal').classList.remove('hidden');
+    }
+
+    function closeImportModal() {
+        document.getElementById('import-modal-backdrop').classList.add('hidden');
+        document.getElementById('import-modal').classList.add('hidden');
+    }
+
+    function updateImportFileName(input) {
+        const label = document.getElementById('import-file-name');
+        if (input.files && input.files[0]) {
+            label.textContent = '📄 ' + input.files[0].name + ' (' + (input.files[0].size / 1024).toFixed(1) + ' KB)';
+            label.className = 'block text-xs font-bold text-emerald-700';
+        }
+    }
+
+    function handleImportSubmit(e) {
+        const fileInput = document.getElementById('excel_file');
+        if (!fileInput.files || !fileInput.files[0]) {
+            alert('Por favor selecciona un archivo de Excel primero.');
+            e.preventDefault();
+            return false;
+        }
+
+        const btn = document.getElementById('btn-submit-import');
+        const txt = document.getElementById('btn-submit-import-text');
+        btn.disabled = true;
+        txt.textContent = 'Importando productos, por favor espera...';
+        return true;
+    }
 
     function updateBulkToolbar() {
         const checkedBoxes = document.querySelectorAll('.product-checkbox:checked');
