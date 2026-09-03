@@ -2,12 +2,14 @@
 <html lang="es" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>@yield('title', 'Panel de Administración') - {{ $company->name ?? 'Catálogo Virtual' }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'Panel de Administración') - {{ $company->name ?? 'TecnoStore' }}</title>
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -19,20 +21,9 @@
                     },
                     colors: {
                         brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            900: '#14532d',
-                        },
-                        primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            900: '#1e3a8a',
+                            500: '#0052cc',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
                         }
                     }
                 }
@@ -40,226 +31,177 @@
         }
     </script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="h-full flex flex-col antialiased text-slate-800 bg-slate-50">
+<body class="h-full bg-slate-100 flex overflow-hidden">
 
-    <div class="min-h-full flex flex-col md:flex-row relative">
-        <!-- Mobile Sidebar Backdrop Overlay -->
-        <div id="admin-backdrop" onclick="toggleAdminSidebar()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40 hidden md:hidden transition-opacity"></div>
+    <!-- Admin Sidebar (Exact TecnoStore Dark Navy Style: #0a1931) -->
+    <aside class="w-64 bg-[#0a1931] text-slate-300 flex flex-col flex-shrink-0 z-30 transition-all duration-300 hidden md:flex border-r border-slate-800">
+        
+        <!-- Sidebar Brand / Logo -->
+        <div class="p-5 border-b border-slate-800/80 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-md flex-shrink-0">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 17H5V8h14v12z"/>
+                </svg>
+            </div>
+            <div>
+                <span class="font-black text-white text-base block leading-tight">
+                    {{ $company->name ?? 'TecnoStore' }}
+                </span>
+                <span class="text-[11px] text-blue-400 font-medium block">
+                    Administrador
+                </span>
+            </div>
+        </div>
 
-        <!-- Sidebar (Slide-over drawer on mobile, static on desktop) -->
-        <aside id="admin-sidebar" class="fixed md:static inset-y-0 left-0 z-50 w-72 md:w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col border-r border-slate-800 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
-            <!-- Sidebar Header -->
-            <div class="h-16 sm:h-20 flex items-center justify-between px-6 bg-slate-950/40 border-b border-slate-800">
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 font-bold text-white text-base tracking-tight truncate">
-                    @if(isset($company) && $company->logo && file_exists(public_path('storage/' . $company->logo)))
-                        <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name }}" class="h-9 max-w-[120px] object-contain rounded-lg bg-white/10 p-1">
-                    @else
-                        <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-blue-500/30 flex-shrink-0">
-                            {{ strtoupper(substr($company->name ?? 'C', 0, 1)) }}
-                        </div>
-                    @endif
-                    <div class="overflow-hidden">
-                        <span class="block truncate leading-tight">{{ $company->name ?? 'Catálogo' }}</span>
-                        <span class="text-[10px] text-blue-400 font-semibold tracking-wider uppercase block">Administración</span>
-                    </div>
+        <!-- Navigation Links -->
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto text-xs font-semibold">
+            
+            <!-- Dashboard Link -->
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.dashboard') ? 'bg-[#0052cc] text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+
+            <!-- Productos Group -->
+            <div class="pt-2 space-y-1">
+                <div class="px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    Productos
+                </div>
+                <a href="{{ route('products.index') }}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl transition pl-6 {{ request()->routeIs('products.index') ? 'text-white font-bold bg-slate-800' : 'text-slate-400 hover:text-white hover:bg-slate-800/40' }}">
+                    <span>• Todos los productos</span>
                 </a>
-
-                <!-- Close button for mobile -->
-                <button type="button" onclick="toggleAdminSidebar()" class="md:hidden p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+                <a href="{{ route('products.create') }}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl transition pl-6 {{ request()->routeIs('products.create') ? 'text-white font-bold bg-slate-800' : 'text-slate-400 hover:text-white hover:bg-slate-800/40' }}">
+                    <span>• Agregar producto</span>
+                </a>
             </div>
 
-            <!-- Sidebar Nav -->
-            <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition {{ request()->routeIs('admin.dashboard') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                    </svg>
-                    <span>Dashboard</span>
-                </a>
-
-                <div class="pt-4 pb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Gestión de Catálogo
+            <!-- Categorías Group -->
+            <div class="pt-2 space-y-1">
+                <div class="px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    Categorías
                 </div>
-
-                <a href="{{ route('products.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition {{ request()->routeIs('products.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                    </svg>
-                    <span>Productos</span>
+                <a href="{{ route('categories.index') }}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl transition pl-6 {{ request()->routeIs('categories.index') ? 'text-white font-bold bg-slate-800' : 'text-slate-400 hover:text-white hover:bg-slate-800/40' }}">
+                    <span>• Todas las categorías</span>
                 </a>
-
-                <a href="{{ route('categories.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition {{ request()->routeIs('categories.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-                    </svg>
-                    <span>Categorías</span>
+                <a href="{{ route('categories.create') }}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl transition pl-6 {{ request()->routeIs('categories.create') ? 'text-white font-bold bg-slate-800' : 'text-slate-400 hover:text-white hover:bg-slate-800/40' }}">
+                    <span>• Agregar categoría</span>
                 </a>
+            </div>
 
-                <div class="pt-4 pb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <!-- Cotizaciones Group -->
+            <div class="pt-2 space-y-1">
+                <div class="px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
                     Ventas & Cotizaciones
                 </div>
-
-                <a href="{{ route('quotes.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition {{ request()->routeIs('quotes.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60' }}">
-                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="{{ route('quotes.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('quotes.*') ? 'bg-[#0052cc] text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                     <span>Cotizaciones</span>
                 </a>
+            </div>
 
-                @if(auth()->check() && auth()->user()->isAdmin())
-                    <div class="pt-4 pb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                        Administración
-                    </div>
-
-                    <a href="{{ route('users.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition {{ request()->routeIs('users.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60' }}">
-                        <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                        </svg>
-                        <span>Usuarios y Roles</span>
-                    </a>
-
-                    <a href="{{ route('admin.settings.edit') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition {{ request()->routeIs('admin.settings.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60' }}">
-                        <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                        </svg>
-                        <span>Datos de Empresa</span>
-                    </a>
-                @endif
-
-                <div class="pt-4 pb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Exportación
+            <!-- Catálogo PDF -->
+            <div class="pt-2 space-y-1">
+                <div class="px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    Catálogo PDF
                 </div>
-
-                <a href="{{ route('admin.pdf') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition">
-                    <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="{{ route('catalog.pdf') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                    <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                     <span>Descargar PDF</span>
                 </a>
-
-                <div class="pt-4 pb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Público
-                </div>
-
-                <a href="{{ route('catalog.index') }}" target="_blank" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition">
-                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                    </svg>
-                    <span>Ver Catálogo Web</span>
-                </a>
-            </nav>
-
-            <!-- Sidebar User / Logout -->
-            <div class="p-4 border-t border-slate-800 bg-slate-950/30">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full {{ auth()->user() && auth()->user()->isAdmin() ? 'bg-indigo-600' : 'bg-emerald-600' }} text-white font-semibold flex items-center justify-center text-sm shadow-sm">
-                            {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
-                        </div>
-                        <div class="overflow-hidden">
-                            <div class="flex items-center gap-1.5">
-                                <p class="text-sm font-semibold text-white truncate">{{ auth()->user()->name ?? 'Usuario' }}</p>
-                            </div>
-                            <div class="flex items-center gap-1.5 mt-0.5">
-                                <span class="text-[10px] font-bold px-1.5 py-0.2 rounded {{ auth()->user() && auth()->user()->isAdmin() ? 'bg-indigo-900/80 text-indigo-300 border border-indigo-700/50' : 'bg-emerald-900/80 text-emerald-300 border border-emerald-700/50' }}">
-                                    {{ auth()->user()->role_name ?? 'Usuario' }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" title="Cerrar sesión" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                            </svg>
-                        </button>
-                    </form>
-                </div>
             </div>
-        </aside>
 
-        <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-            <!-- Top Header -->
-            <header class="h-16 sm:h-20 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 z-10">
-                <div class="flex items-center gap-3">
-                    <!-- Hamburger Menu Button on Mobile -->
-                    <button type="button" onclick="toggleAdminSidebar()" class="md:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                        </svg>
-                    </button>
-                    <h1 class="text-base sm:text-xl font-bold text-slate-800 truncate">
-                        @yield('header_title', 'Panel de Control')
-                    </h1>
-                </div>
-
-                <div class="flex items-center gap-2 sm:gap-3">
-                    <a href="{{ route('products.create') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl shadow-sm transition">
+            @if(auth()->check() && auth()->user()->isAdmin())
+                <!-- Configuración -->
+                <div class="pt-2 space-y-1">
+                    <div class="px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                        Configuración
+                    </div>
+                    <a href="{{ route('admin.settings.edit') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.settings.*') ? 'bg-[#0052cc] text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
-                        <span class="hidden xs:inline">Nuevo</span>
-                        <span>Producto</span>
+                        <span>Datos de Empresa</span>
+                    </a>
+                    <a href="{{ route('users.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('users.*') ? 'bg-[#0052cc] text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                        <span>Usuarios y Roles</span>
                     </a>
                 </div>
-            </header>
+            @endif
 
-            <!-- Page Body -->
-            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50">
-                <!-- Flash Messages -->
-                @if(session('success'))
-                    <div class="mb-4 sm:mb-6 p-3.5 sm:p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between">
-                        <div class="flex items-center gap-2.5 sm:gap-3">
-                            <svg class="w-5 h-5 text-emerald-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-xs sm:text-sm font-medium">{{ session('success') }}</span>
-                        </div>
-                    </div>
-                @endif
+        </nav>
 
-                @if($errors->any())
-                    <div class="mb-4 sm:mb-6 p-3.5 sm:p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800">
-                        <div class="flex items-center gap-2 mb-2 font-semibold text-xs sm:text-sm">
-                            <svg class="w-5 h-5 text-rose-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                            </svg>
-                            <span>Por favor corrige los siguientes errores:</span>
-                        </div>
-                        <ul class="list-disc list-inside text-xs space-y-1 text-rose-700">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                @yield('content')
-            </main>
+        <!-- Cerrar Sesión Footer Button -->
+        <div class="p-4 border-t border-slate-800/80">
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800/60 text-xs font-semibold transition cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    <span>Cerrar sesión</span>
+                </button>
+            </form>
         </div>
+    </aside>
+
+    <!-- Main Admin Area -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#f4f6fa]">
+        
+        <!-- Top Navbar -->
+        <header class="h-16 bg-white border-b border-slate-200/90 px-4 sm:px-8 flex items-center justify-between z-10 flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <a href="{{ route('catalog.index') }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                    <span>Ver Catálogo Público</span>
+                </a>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <span class="text-xs font-bold text-slate-800 block">{{ auth()->user()->name ?? 'Administrador' }}</span>
+                    <span class="text-[10px] text-slate-400 capitalize">{{ auth()->user()->role ?? 'Admin' }}</span>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
+                    {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-8">
+            <!-- Flash Messages -->
+            @if(session('success'))
+                <div class="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>{{ session('success') }}</span>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center gap-2">
+                    <svg class="w-4 h-4 text-rose-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
+
+            @yield('content')
+        </main>
     </div>
 
-    <script>
-        function toggleAdminSidebar() {
-            const sidebar = document.getElementById('admin-sidebar');
-            const backdrop = document.getElementById('admin-backdrop');
-
-            sidebar.classList.toggle('-translate-x-full');
-            backdrop.classList.toggle('hidden');
-        }
-    </script>
-
-    @stack('scripts')
 </body>
 </html>

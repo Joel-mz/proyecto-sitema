@@ -17,7 +17,7 @@ class UserManagementTest extends TestCase
         $response = $this->actingAs($admin)->get(route('users.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('Gestión de Usuarios');
+        $response->assertSee('Usuarios del Sistema');
     }
 
     public function test_editor_cannot_access_user_management(): void

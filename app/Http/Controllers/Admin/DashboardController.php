@@ -14,8 +14,9 @@ class DashboardController extends Controller
         $totalProducts = Product::count();
         $totalCategories = Category::count();
         $activeProducts = Product::where('is_active', true)->count();
+        $inactiveProducts = $totalProducts - $activeProducts;
         $recentProducts = Product::with('category')->latest()->take(5)->get();
 
-        return view('admin.dashboard', compact('totalProducts', 'totalCategories', 'activeProducts', 'recentProducts'));
+        return view('admin.dashboard', compact('totalProducts', 'totalCategories', 'activeProducts', 'inactiveProducts', 'recentProducts'));
     }
 }
