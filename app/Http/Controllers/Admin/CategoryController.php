@@ -24,7 +24,7 @@ class CategoryController extends Controller
 
     public function create(): View
     {
-        $parentCategories = Category::whereNull('parent_id')->orderBy('name')->get();
+        $parentCategories = Category::with('parent')->orderBy('name')->get();
 
         return view('admin.categories.create', compact('parentCategories'));
     }
@@ -55,7 +55,7 @@ class CategoryController extends Controller
 
     public function edit(Category $category): View
     {
-        $parentCategories = Category::whereNull('parent_id')->where('id', '!=', $category->id)->orderBy('name')->get();
+        $parentCategories = Category::with('parent')->where('id', '!=', $category->id)->orderBy('name')->get();
 
         return view('admin.categories.edit', compact('category', 'parentCategories'));
     }

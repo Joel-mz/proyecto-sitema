@@ -30,7 +30,7 @@
                     <option value="">-- Ninguna (Será una Categoría Principal) --</option>
                     @foreach($parentCategories as $parent)
                         <option value="{{ $parent->id }}" {{ old('parent_id', request('parent_id')) == $parent->id ? 'selected' : '' }}>
-                            📁 {{ $parent->name }}
+                            {{ $parent->parent ? '↳ ' . $parent->parent->name . ' > ' . $parent->name : '📁 ' . $parent->name }}
                         </option>
                     @endforeach
                 </select>
