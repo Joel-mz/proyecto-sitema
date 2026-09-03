@@ -228,25 +228,38 @@ class BackupController extends Controller
             // 3. Restore Products
             if (isset($jsonData['products']) && is_array($jsonData['products'])) {
                 $allCategoryIds = DB::table('categories')->pluck('id')->toArray();
+                $hasStock = Schema::hasColumn('products', 'stock');
+                $hasFeatured = Schema::hasColumn('products', 'is_featured');
+                $hasMinPrice = Schema::hasColumn('products', 'min_price');
+
                 foreach ($jsonData['products'] as $prod) {
                     $catId = (! empty($prod['category_id']) && in_array($prod['category_id'], $allCategoryIds)) ? $prod['category_id'] : null;
 
+                    $productRow = [
+                        'category_id' => $catId,
+                        'name' => $prod['name'],
+                        'slug' => $prod['slug'],
+                        'description' => $prod['description'] ?? null,
+                        'price' => $prod['price'] ?? 0,
+                        'is_active' => (bool) ($prod['is_active'] ?? true),
+                        'image' => $prod['image'] ?? null,
+                        'created_at' => $prod['created_at'] ?? now(),
+                        'updated_at' => $prod['updated_at'] ?? now(),
+                    ];
+
+                    if ($hasMinPrice) {
+                        $productRow['min_price'] = $prod['min_price'] ?? null;
+                    }
+                    if ($hasStock) {
+                        $productRow['stock'] = $prod['stock'] ?? 0;
+                    }
+                    if ($hasFeatured) {
+                        $productRow['is_featured'] = (bool) ($prod['is_featured'] ?? false);
+                    }
+
                     DB::table('products')->updateOrInsert(
                         ['id' => $prod['id']],
-                        [
-                            'category_id' => $catId,
-                            'name' => $prod['name'],
-                            'slug' => $prod['slug'],
-                            'description' => $prod['description'] ?? null,
-                            'price' => $prod['price'] ?? 0,
-                            'min_price' => $prod['min_price'] ?? null,
-                            'stock' => $prod['stock'] ?? 0,
-                            'is_active' => (bool) ($prod['is_active'] ?? true),
-                            'is_featured' => (bool) ($prod['is_featured'] ?? false),
-                            'image' => $prod['image'] ?? null,
-                            'created_at' => $prod['created_at'] ?? now(),
-                            'updated_at' => $prod['updated_at'] ?? now(),
-                        ]
+                        $productRow
                     );
                     $stats['products']++;
                 }
