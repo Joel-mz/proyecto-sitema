@@ -230,7 +230,7 @@
         </div>
 
         <!-- Drawer Body -->
-        <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+        <div class="flex-1 overflow-y-auto no-scrollbar p-4 sm:p-5 space-y-4">
             <!-- Empty State -->
             <div id="cart-empty-state" class="py-16 text-center space-y-3">
                 <div class="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto shadow-inner">
@@ -369,7 +369,7 @@
         </div>
 
         <!-- Drawer Footer: Totals and WhatsApp Action -->
-        <div id="cart-drawer-footer" class="hidden p-4 sm:p-5 border-t border-slate-200 bg-slate-50 space-y-2.5">
+        <div id="cart-drawer-footer" class="hidden p-4 sm:p-5 border-t border-slate-200 bg-slate-50 space-y-3">
             <div class="flex items-center justify-between text-slate-600 text-xs">
                 <span>Subtotal:</span>
                 <span id="cart-subtotal" class="font-bold text-slate-800">S/ 0.00</span>
@@ -377,17 +377,19 @@
             <div class="flex items-center justify-between text-slate-900 font-bold text-base pt-1 border-t border-slate-200">
                 <span>Total a Pagar:</span>
                 <span id="cart-total" class="text-blue-600 font-black text-lg">S/ 0.00</span>
+            </div>
+
             <!-- WhatsApp & PDF Checkout Buttons -->
-            <div class="space-y-2">
-                <button type="button" id="cart-submit-btn" onclick="submitWhatsAppOrder(true)" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl font-bold text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
-                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.768-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
+            <div class="space-y-2 pt-1">
+                <button type="button" id="cart-submit-btn" onclick="submitWhatsAppOrder(true, false)" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl font-bold text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
+                    <svg class="w-5 h-5 fill-current flex-shrink-0" viewBox="0 0 24 24">
+                        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.97.529 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766 0-3.181-2.587-5.768-5.766zm9.969 5.766c0 5.514-4.486 10-10 10-1.824 0-3.536-.492-5.021-1.354l-6.979 1.827 1.861-6.804c-.958-1.545-1.503-3.364-1.503-5.309 0-5.514 4.486-10 10-10s10 4.486 10 10z"/>
                     </svg>
                     <span id="btn-submit-text">Enviar Pedido por WhatsApp</span>
                 </button>
 
                 <button type="button" onclick="submitWhatsAppOrder(false, true)" class="w-full py-2.5 px-4 bg-white hover:bg-slate-100 text-blue-700 border border-blue-200 active:scale-98 rounded-xl font-bold text-xs shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
-                    <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-rose-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                     <span>Descargar Ticket / Proforma en PDF</span>
@@ -675,6 +677,21 @@
             return txt.value.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&#039;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
         }
 
+        function downloadPdfFile(url) {
+            if (!url) return;
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', '');
+            link.setAttribute('target', '_blank');
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(() => {
+                if (document.body.contains(link)) {
+                    document.body.removeChild(link);
+                }
+            }, 600);
+        }
+
         async function submitWhatsAppOrder(sendToWhatsApp = true, openPdfOnly = false) {
             if (cart.length === 0) {
                 alert('El carrito está vacío.');
@@ -682,26 +699,8 @@
             }
 
             const name = document.getElementById('order-name').value.trim();
-            if (!name) {
-                alert(customerType === 'personal' ? 'Por favor, ingresa tu Nombre Completo.' : 'Por favor, ingresa la Razón Social / Empresa.');
-                document.getElementById('order-name').focus();
-                return;
-            }
-
             const doc = document.getElementById('order-doc').value.trim();
-            if (!doc) {
-                alert(customerType === 'personal' ? 'Por favor, ingresa tu DNI.' : 'Por favor, ingresa el número de RUC.');
-                document.getElementById('order-doc').focus();
-                return;
-            }
-
             const phone = document.getElementById('order-phone').value.trim();
-            if (!phone) {
-                alert('Por favor, ingresa un número de Teléfono / Celular de contacto.');
-                document.getElementById('order-phone').focus();
-                return;
-            }
-
             const address = document.getElementById('order-address').value.trim();
             const notes = document.getElementById('order-notes').value.trim();
             const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -725,10 +724,10 @@
             try {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
                 const payload = {
-                    customer_name: name,
-                    customer_document: doc,
+                    customer_name: name || 'Cliente Web',
+                    customer_document: doc || 'S/D',
                     customer_document_type: docType,
-                    customer_phone: phone,
+                    customer_phone: phone || '-',
                     delivery_mode: deliveryMode,
                     delivery_address: address,
                     payment_method: selectedPayment,
@@ -757,7 +756,7 @@
                     orderNumber = data.order_number;
                 }
             } catch (e) {
-                console.warn('No se pudo guardar pedido en BD, continuando directo a WhatsApp:', e);
+                console.warn('No se pudo guardar pedido en BD, continuando:', e);
             }
 
             if (submitBtn && submitText) {
@@ -765,11 +764,11 @@
                 submitText.textContent = originalText;
             }
 
-            // If user only wanted the PDF ticket
+            // If user only clicked "Descargar Ticket / Proforma en PDF"
             if (openPdfOnly) {
                 if (ticketUrl) {
-                    window.open(ticketUrl, '_blank');
-                    showToast('¡Ticket PDF descargado exitosamente!');
+                    downloadPdfFile(ticketUrl);
+                    showToast('¡Descargando Ticket / Proforma en PDF!');
                 } else {
                     alert('No se pudo generar el ticket PDF en este momento.');
                 }
@@ -782,9 +781,13 @@
                 msg += `🔖 *N° Pedido:* ${orderNumber}\n`;
             }
             msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-            msg += `👤 *Cliente:* ${name}\n`;
-            msg += `📄 *${docType} (${customerType === 'personal' ? 'Boleta' : 'Factura'}):* ${doc}\n`;
-            msg += `📱 *Teléfono:* ${phone}\n`;
+            msg += `👤 *Cliente:* ${name || 'Cliente Web'}\n`;
+            if (doc) {
+                msg += `📄 *${docType} (${customerType === 'personal' ? 'Boleta' : 'Factura'}):* ${doc}\n`;
+            }
+            if (phone) {
+                msg += `📱 *Teléfono:* ${phone}\n`;
+            }
             msg += `📍 *Modalidad de Entrega:* ${deliveryMode}\n`;
             if (address) msg += `🏠 *Dirección/Referencia:* ${address}\n`;
             msg += `💳 *Método de Pago:* ${selectedPayment}\n`;
@@ -814,17 +817,17 @@
 
             const whatsappUrl = `https://api.whatsapp.com/send?phone=${COMPANY_WHATSAPP}&text=${encodeURIComponent(msg)}`;
             
-            // Open WhatsApp in new tab
-            window.open(whatsappUrl, '_blank');
-
-            // If ticket URL exists, also open/download PDF in background
+            // Download PDF
             if (ticketUrl) {
-                setTimeout(() => {
-                    window.open(ticketUrl, '_blank');
-                }, 400);
+                downloadPdfFile(ticketUrl);
             }
 
-            showToast('¡Pedido registrado! Abriendo WhatsApp y Ticket PDF...');
+            // Redirect / Open WhatsApp
+            setTimeout(() => {
+                window.location.href = whatsappUrl;
+            }, 300);
+
+            showToast('¡Pedido registrado! Descargando PDF y abriendo WhatsApp...');
         }
 
         document.addEventListener('DOMContentLoaded', () => {

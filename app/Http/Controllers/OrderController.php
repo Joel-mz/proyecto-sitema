@@ -18,13 +18,13 @@ class OrderController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'customer_name' => ['required', 'string', 'max:255'],
-            'customer_document' => ['required', 'string', 'max:20'],
-            'customer_document_type' => ['required', 'in:DNI,RUC'],
-            'customer_phone' => ['required', 'string', 'max:50'],
-            'delivery_mode' => ['required', 'string', 'max:255'],
+            'customer_name' => ['nullable', 'string', 'max:255'],
+            'customer_document' => ['nullable', 'string', 'max:20'],
+            'customer_document_type' => ['nullable', 'in:DNI,RUC'],
+            'customer_phone' => ['nullable', 'string', 'max:50'],
+            'delivery_mode' => ['nullable', 'string', 'max:255'],
             'delivery_address' => ['nullable', 'string', 'max:255'],
-            'payment_method' => ['required', 'string', 'max:255'],
+            'payment_method' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_name' => ['required', 'string', 'max:255'],
@@ -32,6 +32,13 @@ class OrderController extends Controller
             'items.*.unit_price' => ['required', 'numeric', 'min:0'],
             'items.*.product_id' => ['nullable', 'exists:products,id'],
         ]);
+
+        $validated['customer_name'] = ! empty($validated['customer_name']) ? $validated['customer_name'] : 'Cliente Web';
+        $validated['customer_document'] = ! empty($validated['customer_document']) ? $validated['customer_document'] : 'S/D';
+        $validated['customer_document_type'] = ! empty($validated['customer_document_type']) ? $validated['customer_document_type'] : 'DNI';
+        $validated['customer_phone'] = ! empty($validated['customer_phone']) ? $validated['customer_phone'] : '-';
+        $validated['delivery_mode'] = ! empty($validated['delivery_mode']) ? $validated['delivery_mode'] : 'Recojo en Tienda Moyobamba 🏪';
+        $validated['payment_method'] = ! empty($validated['payment_method']) ? $validated['payment_method'] : 'Yape 📱';
 
         $order = DB::transaction(function () use ($validated) {
             $subtotal = 0;
@@ -59,7 +66,7 @@ class OrderController extends Controller
                 'customer_document_type' => $validated['customer_document_type'],
                 'customer_phone' => $validated['customer_phone'],
                 'delivery_mode' => $validated['delivery_mode'],
-                'delivery_address' => $validated['delivery_address'],
+                'delivery_address' => $validated['delivery_address'] ?? null,
                 'payment_method' => $validated['payment_method'],
                 'subtotal' => $subtotal,
                 'total' => $subtotal,
