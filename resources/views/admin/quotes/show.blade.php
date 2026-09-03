@@ -102,8 +102,8 @@
                                     <td class="py-3 px-3 font-bold">{{ $idx + 1 }}</td>
                                     <td class="py-3 px-3 font-bold text-slate-900">
                                         {{ $item->product_name }}
-                                        @if($item->product && $item->product->image)
-                                            <a href="{{ asset('storage/' . $item->product->image) }}" target="_blank" class="text-[10px] text-blue-600 block hover:underline">Ver Imagen</a>
+                                        @if($item->product && $item->product->image_url)
+                                            <a href="{{ $item->product->image_url }}" target="_blank" class="text-[10px] text-blue-600 block hover:underline">Ver Imagen</a>
                                         @endif
                                     </td>
                                     <td class="py-3 px-3 text-center font-bold">{{ $item->quantity }}</td>

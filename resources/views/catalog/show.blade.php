@@ -23,8 +23,8 @@
             
             <!-- Left: Product Image Box -->
             <div class="w-full aspect-square bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-center p-6 overflow-hidden">
-                @if($product->image)
-                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
+                @if($product->image_url)
+                    <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
                          class="max-h-full max-w-full object-contain hover:scale-105 transition-transform duration-300">
                 @else
                     <div class="flex flex-col items-center justify-center text-slate-400 gap-2">
@@ -117,7 +117,7 @@
             {{ $product->id }},
             '{{ addslashes($product->name) }}',
             {{ $product->price }},
-            '{{ $product->image ? asset('storage/' . $product->image) : '' }}',
+            '{{ $product->image_url ?? '' }}',
             '{{ route('catalog.show', $product->slug) }}',
             qty
         );
@@ -132,8 +132,8 @@
         msg += `▪ Cantidad: ${qty} und.\n`;
         msg += `▪ Precio Unitario: S/ {{ number_format($product->price, 2) }}\n`;
         msg += `▪ Total: S/ ${total}\n`;
-        @if($product->image)
-            msg += `▪ 🖼️ Foto: {{ asset('storage/' . $product->image) }}\n`;
+        @if($product->image_url)
+            msg += `▪ 🖼️ Foto: {{ $product->image_url }}\n`;
         @else
             msg += `▪ 🔗 Enlace: {{ route('catalog.show', $product->slug) }}\n`;
         @endif

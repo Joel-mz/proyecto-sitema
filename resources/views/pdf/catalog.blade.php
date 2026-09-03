@@ -197,7 +197,9 @@
                     @foreach($cat->products as $prod)
                         <tr class="product-row">
                             <td class="product-image-cell">
-                                @if($prod->image && file_exists(public_path('storage/' . $prod->image)))
+                                @if($prod->image && str_starts_with($prod->image, 'http'))
+                                    <img src="{{ $prod->image }}" class="product-image" alt="{{ $prod->name }}">
+                                @elseif($prod->image && file_exists(public_path('storage/' . $prod->image)))
                                     <img src="{{ public_path('storage/' . $prod->image) }}" class="product-image" alt="{{ $prod->name }}">
                                 @else
                                     <div class="no-image">Sin foto</div>

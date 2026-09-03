@@ -52,9 +52,11 @@ class ProductController extends Controller
             'price' => ['required', 'numeric', 'min:0', 'max:999999.99'],
             'min_price' => ['nullable', 'numeric', 'min:0', 'max:999999.99', 'lte:price'],
             'is_active' => ['sometimes', 'boolean'],
-            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:10240'],
+            'image_url' => ['nullable', 'url', 'max:2048'],
         ], [
             'min_price.lte' => 'El precio mínimo no puede ser mayor que el precio de venta.',
+            'image_url.url' => 'La URL de la imagen debe ser un enlace válido (ej. https://ejemplo.com/foto.jpg).',
         ]);
 
         $validated['is_active'] = $request->has('is_active');
@@ -70,6 +72,8 @@ class ProductController extends Controller
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('products', 'public');
             $validated['image'] = $path;
+        } elseif ($request->filled('image_url')) {
+            $validated['image'] = $request->input('image_url');
         }
 
         Product::create($validated);
@@ -93,9 +97,12 @@ class ProductController extends Controller
             'price' => ['required', 'numeric', 'min:0', 'max:999999.99'],
             'min_price' => ['nullable', 'numeric', 'min:0', 'max:999999.99', 'lte:price'],
             'is_active' => ['sometimes', 'boolean'],
-            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:10240'],
+            'image_url' => ['nullable', 'url', 'max:2048'],
+            'remove_image' => ['sometimes', 'boolean'],
         ], [
             'min_price.lte' => 'El precio mínimo no puede ser mayor que el precio de venta.',
+            'image_url.url' => 'La URL de la imagen debe ser un enlace válido (ej. https://ejemplo.com/foto.jpg).',
         ]);
 
         $validated['is_active'] = $request->has('is_active');
@@ -110,11 +117,21 @@ class ProductController extends Controller
         $validated['slug'] = $slug;
 
         if ($request->hasFile('image')) {
-            if ($product->image && Storage::disk('public')->exists($product->image)) {
+            if ($product->image && ! str_starts_with($product->image, 'http') && Storage::disk('public')->exists($product->image)) {
                 Storage::disk('public')->delete($product->image);
             }
             $path = $request->file('image')->store('products', 'public');
             $validated['image'] = $path;
+        } elseif ($request->filled('image_url')) {
+            if ($product->image && ! str_starts_with($product->image, 'http') && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $validated['image'] = $request->input('image_url');
+        } elseif ($request->boolean('remove_image')) {
+            if ($product->image && ! str_starts_with($product->image, 'http') && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $validated['image'] = null;
         }
 
         $product->update($validated);
@@ -124,7 +141,7 @@ class ProductController extends Controller
 
     public function destroy(Product $product): RedirectResponse
     {
-        if ($product->image && Storage::disk('public')->exists($product->image)) {
+        if ($product->image && ! str_starts_with($product->image, 'http') && Storage::disk('public')->exists($product->image)) {
             Storage::disk('public')->delete($product->image);
         }
 
