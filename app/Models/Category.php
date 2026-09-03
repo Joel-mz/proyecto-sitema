@@ -47,4 +47,20 @@ class Category extends Model
     {
         return is_null($this->parent_id);
     }
+
+    public function getTotalActiveProductsCountAttribute(): int
+    {
+        if ($this->relationLoaded('subcategories')) {
+            $count = $this->products_count ?? $this->products()->where('is_active', true)->count();
+            foreach ($this->subcategories as $sub) {
+                $count += ($sub->products_count ?? $sub->products()->where('is_active', true)->count());
+            }
+
+            return $count;
+        }
+
+        $subcategoryIds = $this->subcategories()->pluck('id')->push($this->id);
+
+        return Product::whereIn('category_id', $subcategoryIds)->where('is_active', true)->count();
+    }
 }

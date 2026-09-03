@@ -156,6 +156,7 @@
 
             @foreach($categories as $cat)
                 @php
+                    $isCatActive = (isset($selectedCategory) && ($selectedCategory->id == $cat->id || $selectedCategory->parent_id == $cat->id)) || request('categoria') == $cat->slug;
                     $slug = Str::slug($cat->name);
                     $iconSvg = $categoryIcons[$slug] ?? null;
                     if (!$iconSvg) {
@@ -172,10 +173,10 @@
                 @endphp
 
                 <a href="{{ route('catalog.index', array_filter(['categoria' => $cat->slug, 'search' => request('search')])) }}"
-                   class="group flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl bg-white border transition-all text-center hover:shadow-md hover:-translate-y-1 {{ request('categoria') == $cat->slug ? 'border-blue-600 ring-2 ring-blue-500/20 shadow-sm' : 'border-slate-200/90 hover:border-blue-300' }}">
+                   class="group flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl bg-white border transition-all text-center hover:shadow-md hover:-translate-y-1 {{ $isCatActive ? 'border-blue-600 ring-2 ring-blue-500/20 shadow-sm' : 'border-slate-200/90 hover:border-blue-300' }}">
                     
                     <!-- Icon Box -->
-                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center transition {{ request('categoria') == $cat->slug ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700 group-hover:bg-blue-50 group-hover:text-blue-600' }}">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center transition {{ $isCatActive ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700 group-hover:bg-blue-50 group-hover:text-blue-600' }}">
                         {!! $iconSvg !!}
                     </div>
 
@@ -183,11 +184,43 @@
                         {{ $cat->name }}
                     </span>
                     <span class="text-[10px] text-slate-400">
-                        {{ $cat->products_count }} prod.
+                        {{ $cat->total_active_products_count }} prod.
                     </span>
                 </a>
             @endforeach
         </div>
+
+        <!-- Subcategories Filter Bar (Inside parent category) -->
+        @if(isset($selectedCategory) && ($selectedCategory->subcategories->isNotEmpty() || $selectedCategory->parent))
+            @php
+                $mainCategory = $selectedCategory->parent ?: $selectedCategory;
+            @endphp
+            <div class="bg-white rounded-2xl border border-blue-200/80 shadow-xs p-4 sm:p-5 space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">📁</span>
+                        <h3 class="text-xs sm:text-sm font-bold text-slate-800">
+                            Subcategorías de <span class="text-blue-600 font-extrabold">{{ $mainCategory->name }}</span>
+                        </h3>
+                    </div>
+                    <span class="text-[11px] text-slate-400 hidden sm:inline">Selecciona una subcategoría para filtrar</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <a href="{{ route('catalog.index', array_filter(['categoria' => $mainCategory->slug, 'search' => request('search')])) }}"
+                       class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 {{ request('categoria') == $mainCategory->slug ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 hover:bg-slate-200 text-slate-700' }}">
+                        <span>Ver Todo en {{ $mainCategory->name }}</span>
+                        <span class="text-[10px] {{ request('categoria') == $mainCategory->slug ? 'text-blue-200' : 'text-slate-400' }}">({{ $mainCategory->total_active_products_count }})</span>
+                    </a>
+                    @foreach($mainCategory->subcategories as $sub)
+                        <a href="{{ route('catalog.index', array_filter(['categoria' => $sub->slug, 'search' => request('search')])) }}"
+                           class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 {{ request('categoria') == $sub->slug ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700' }}">
+                            <span>↳ {{ $sub->name }}</span>
+                            <span class="text-[10px] {{ request('categoria') == $sub->slug ? 'text-blue-200' : 'text-slate-400' }}">({{ $sub->products_count }})</span>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        @endif
     </section>
 
     <!-- 3. PRODUCTOS DESTACADOS (Exact TecnoStore Card Grid) -->
@@ -195,8 +228,11 @@
         <div class="flex items-center justify-between border-b border-slate-200/80 pb-3">
             <div>
                 <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                    @if(request('categoria'))
-                        {{ $categories->firstWhere('slug', request('categoria'))->name ?? 'Productos' }}
+                    @if(isset($selectedCategory))
+                        {{ $selectedCategory->name }}
+                        @if($selectedCategory->parent)
+                            <span class="text-sm font-normal text-slate-400 block sm:inline">en {{ $selectedCategory->parent->name }}</span>
+                        @endif
                     @else
                         Productos Destacados
                     @endif

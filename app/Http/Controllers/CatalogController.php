@@ -13,9 +13,17 @@ class CatalogController extends Controller
 {
     public function index(Request $request): View
     {
-        $categories = Category::withCount(['products' => function ($q) {
-            $q->where('is_active', true);
-        }])->get();
+        $categories = Category::whereNull('parent_id')
+            ->with(['subcategories' => function ($q) {
+                $q->withCount(['products' => function ($pq) {
+                    $pq->where('is_active', true);
+                }]);
+            }])
+            ->withCount(['products' => function ($q) {
+                $q->where('is_active', true);
+            }])
+            ->orderBy('name')
+            ->get();
 
         $query = Product::with('category')->where('is_active', true)->latest();
 
@@ -27,12 +35,29 @@ class CatalogController extends Controller
             });
         }
 
+        $selectedCategory = null;
         if ($request->filled('categoria')) {
             $categorySlug = $request->get('categoria');
-            $selectedCat = Category::with('subcategories')->where('slug', $categorySlug)->first();
-            if ($selectedCat) {
-                $categoryIds = $selectedCat->subcategories->pluck('id')->push($selectedCat->id);
-                $query->whereIn('category_id', $categoryIds);
+            $selectedCategory = Category::with([
+                'subcategories' => function ($q) {
+                    $q->withCount(['products' => function ($pq) {
+                        $pq->where('is_active', true);
+                    }]);
+                },
+                'parent.subcategories' => function ($q) {
+                    $q->withCount(['products' => function ($pq) {
+                        $pq->where('is_active', true);
+                    }]);
+                },
+            ])->where('slug', $categorySlug)->first();
+
+            if ($selectedCategory) {
+                if ($selectedCategory->parent_id) {
+                    $query->where('category_id', $selectedCategory->id);
+                } else {
+                    $categoryIds = $selectedCategory->subcategories->pluck('id')->push($selectedCategory->id);
+                    $query->whereIn('category_id', $categoryIds);
+                }
             }
         }
 
@@ -43,7 +68,7 @@ class CatalogController extends Controller
 
         $products = $query->paginate(12)->withQueryString();
 
-        return view('catalog.index', compact('products', 'categories', 'banners'));
+        return view('catalog.index', compact('products', 'categories', 'banners', 'selectedCategory'));
     }
 
     public function category(string $slug): View
